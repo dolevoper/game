@@ -49,8 +49,8 @@ export function renderSprite(sprite: Sprite, x: number, y: number): Renderer {
         i * sprite.frameSize,
         sprite.frameSize,
         sprite.frameSize,
-        x * sprite.frameSize,
-        y * sprite.frameSize,
+        x,
+        y,
         sprite.frameSize,
         sprite.frameSize
     );
