@@ -27,7 +27,7 @@ module.exports = {
     devtool: 'inline-source-map',
     plugins: [
         new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
-        new HtmlWebpackPlugin({ template: path.resolve(__dirname, 'src', 'index.html' )})
+        new HtmlWebpackPlugin({ template: path.resolve(__dirname, 'src', 'index.html') })
     ],
     mode: 'development',
     devServer: {

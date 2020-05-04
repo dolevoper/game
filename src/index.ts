@@ -1,20 +1,16 @@
-import { Renderer, renderSolidBackground } from './core';
-import type { Position } from './position';
+import { Renderer, renderSolidBackground, InputState } from './core';
 import type { Sprite } from './sprite';
-import type { AnimatedSprite } from './animated-sprite';
-import * as position from './position';
-import * as animatedSprite from './animated-sprite';
+import type { Player } from './player';
 import * as sprite from './sprite';
+import * as player from './player';
+
+import * as map1 from './map1';
+import * as playerSprites from './player-sprites';
 
 export type GameState = {
     map: Sprite[][],
-    player: {
-        sprite: AnimatedSprite,
-        position: Position
-    }
+    player: Player
 }
-
-type InputState = { [k: number]: boolean };
 
 async function startGame() {
     const canvas = document.getElementById('app') as HTMLCanvasElement;
@@ -28,11 +24,8 @@ async function startGame() {
     let start = 0;
     let inputState: InputState = {};
     let gameState: GameState = {
-        map: await (await import('./map1')).load(),
-        player: {
-            sprite: await (await import('./hero')).load(),
-            position: [4 * 16, 4 * 16]
-        }
+        map: await map1.load(),
+        player: player.fromSprites(await playerSprites.load())
     };
 
     document.addEventListener('keydown', function (e) {
@@ -57,22 +50,8 @@ async function startGame() {
 function update(gameState: GameState, step: number, input: InputState): GameState {
     return {
         ...gameState,
-        player: {
-            sprite: animatedSprite.mapStep(step, gameState.player.sprite),
-            position: updatePosition(gameState.player.position, input)
-        }
+        player: player.update(step, input, gameState.player)
     };
-}
-
-function updatePosition(pos: Position, input: InputState): Position {
-    let res = pos;
-
-    if (input[40]) res = position.moveDown(res);
-    if (input[38]) res = position.moveUp(res);
-    if (input[39]) res = position.moveRight(res);
-    if (input[37]) res = position.moveLeft(res);
-
-    return res;
 }
 
 function getRenderers(gameState: GameState): Renderer[] {
@@ -81,7 +60,7 @@ function getRenderers(gameState: GameState): Renderer[] {
         ...gameState
             .map
             .flatMap((row, i) => row.map((t, j) => sprite.renderOnGrid(t, j + 1, i + 1))),
-        sprite.render(animatedSprite.sprite(gameState.player.sprite), gameState.player.position[0], gameState.player.position[1])
+        player.render(gameState.player)
     ];
 }
 

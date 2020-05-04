@@ -1,4 +1,4 @@
-import { loadImage } from './load-image';
+import { loadImage } from './core';
 import * as sprite from './sprite'
 
 import GrassTileset from './assets/AH_Autotile_Grass.png';

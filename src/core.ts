@@ -17,3 +17,5 @@ export function renderSolidBackground(color: string): Renderer {
         ctx.fillRect(0, 0, 900, 900)
     };
 }
+
+export type InputState = { [k: number]: boolean };
