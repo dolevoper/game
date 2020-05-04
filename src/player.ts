@@ -49,7 +49,7 @@ export function update(step: number, input: InputState, player: Player): Player 
         ...player,
         state: nextState,
         position: updatePosition(input, player.position),
-        sprite: updateSprite(step, player.state, nextState, player.stateSprites, player.sprite)
+        sprite: updateSprite(step, nextState, player)
     };
 }
 
@@ -78,10 +78,10 @@ function updatePosition(input: InputState, pos: Position): Position {
     return res;
 }
 
-function updateSprite(step: number, currState: PlayerState, nextState: PlayerState, stateSprites: PlayerStateSprites, sprite: Sprite | AnimatedSprite): Sprite | AnimatedSprite {
-    if (currState !== nextState) return stateSprites[nextState];
+function updateSprite(step: number, nextState: PlayerState, player: Player): Sprite | AnimatedSprite {
+    if (player.state !== nextState) return player.stateSprites[nextState];
 
-    if (!animatedSprite.isAnimatedSprite(sprite)) return sprite;
+    if (!animatedSprite.isAnimatedSprite(player.sprite)) return player.sprite;
 
-    return animatedSprite.mapStep(step, sprite);
+    return animatedSprite.mapStep(step, player.sprite);
 }
