@@ -54,7 +54,7 @@ async function startGame() {
 
         viewPortCtx.fillStyle = 'black';
         viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
-        render(gameState.player.position, sceneCanvas, viewPortCtx);
+        renderView(gameState.player.position, sceneCanvas, viewPortCtx);
 
         start = timestamp;
         requestAnimationFrame(gameLoop);
@@ -85,20 +85,42 @@ function renderScene(gameState: GameState, sceneCtx: CanvasRenderingContext2D) {
     rendering.render(sceneCtx, getRenderers(gameState));
 }
 
-function render(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {
-    const sceneWidthBiggerThanViewPort = sceneCanvas.width > viewPortCtx.canvas.width;
-    const sceneHeightBiggerThanViewPort = sceneCanvas.height > viewPortCtx.canvas.height;
+function renderView(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {
+    const viewPortCanvas = viewPortCtx.canvas;
+
+    let sx = 0;
+    let sy = 0;
+    let sw = sceneCanvas.width;
+    let sh = sceneCanvas.height;
+    let dx = (viewPortCanvas.width - sceneCanvas.width) / 2;
+    let dy = (viewPortCanvas.height - sceneCanvas.height) / 2;
+    let dw = sceneCanvas.width;
+    let dh = sceneCanvas.height;
+
+    if (viewPortCanvas.width < sceneCanvas.width) {
+        sx = Math.min(sceneCanvas.width - viewPortCanvas.width, Math.max(0, playerPosition[0] - (viewPortCtx.canvas.width / 2) + 8));
+        dx = 0;
+        sw = viewPortCanvas.width;
+        dw = viewPortCanvas.width;
+    }
+
+    if (viewPortCanvas.height < sceneCanvas.height) {
+        sy = Math.min(sceneCanvas.height - viewPortCanvas.height, Math.max(0, playerPosition[1] - (viewPortCtx.canvas.height / 2) + 8));
+        dy = 0;
+        sh = viewPortCanvas.height;
+        dh = viewPortCanvas.height;
+    }
     
     viewPortCtx.drawImage(
         sceneCanvas,
-        sceneWidthBiggerThanViewPort ? playerPosition[0] - (viewPortCtx.canvas.width / 2) + 8 : 0,
-        sceneHeightBiggerThanViewPort ? playerPosition[1] - (viewPortCtx.canvas.height / 2) + 8 : 0,
-        sceneWidthBiggerThanViewPort ? viewPortCtx.canvas.width : sceneCanvas.width,
-        sceneHeightBiggerThanViewPort ? viewPortCtx.canvas.height : sceneCanvas.height,
-        sceneWidthBiggerThanViewPort ? 0 : (viewPortCtx.canvas.width - sceneCanvas.width) / 2,
-        sceneHeightBiggerThanViewPort ? 0 : (viewPortCtx.canvas.height - sceneCanvas.height) / 2,
-        sceneWidthBiggerThanViewPort ? viewPortCtx.canvas.width : sceneCanvas.width,
-        sceneHeightBiggerThanViewPort ? viewPortCtx.canvas.height : sceneCanvas.height
+        sx,
+        sy,
+        sw,
+        sh,
+        dx,
+        dy,
+        dw,
+        dh
     );
 }
 
