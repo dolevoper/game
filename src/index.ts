@@ -3,6 +3,7 @@ import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { GameMap } from './game-map';
 import type { Player } from './player';
+import * as rendering from './rendering';
 import * as player from './player';
 import * as gameMap from './game-map';
 
@@ -26,8 +27,8 @@ async function startGame() {
 
     if (!viewPortCtx || !sceneCtx) return;
 
-    sceneCanvas.width = 72 * 16;
-    sceneCanvas.height = 72 * 16;
+    // sceneCanvas.width = 72 * 16;
+    // sceneCanvas.height = 72 * 16;
 
     let start = 0;
     let inputState: InputState = {};
@@ -49,8 +50,7 @@ async function startGame() {
 
         gameState = update(gameState, step, inputState);
 
-        sceneCtx.clearRect(0, 0, sceneCanvas.width, sceneCanvas.height);
-        getRenderers(gameState).forEach(renderer => renderer(sceneCtx));
+        renderScene(gameState, sceneCtx);
 
         viewPortCtx.fillStyle = 'black';
         viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
@@ -73,6 +73,16 @@ function getRenderers(gameState: GameState): Renderer[] {
         gameMap.render(gameState.map),
         player.render(gameState.player)
     ];
+}
+
+function renderScene(gameState: GameState, sceneCtx: CanvasRenderingContext2D) {
+    const canvas = sceneCtx.canvas;
+
+    canvas.width = gameMap.width(gameState.map);
+    canvas.height = gameMap.height(gameState.map);
+
+    sceneCtx.clearRect(0, 0, canvas.width, canvas.height);
+    rendering.render(sceneCtx, getRenderers(gameState));
 }
 
 function render(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {

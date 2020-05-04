@@ -10,6 +10,14 @@ export function fromTileGrid(grid: TileGrid): GameMap {
     };
 }
 
+export function width(gameMap: GameMap): number {
+    return gameMap.width * gameMap.tileSize;
+}
+
+export function height(gameMap: GameMap): number {
+    return gameMap.height * gameMap.tileSize;
+}
+
 export function render(gameMap: GameMap): Renderer {
     return tileGrid.render(gameMap);
 }
