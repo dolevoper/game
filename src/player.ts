@@ -25,6 +25,11 @@ export interface Player {
 
 const defaultState: PlayerState = 'facing down';
 
+const moveLeftKey = 37;
+const moveUpKey = 38;
+const moveRightKey = 39;
+const moveDownKey = 40;
+
 export function fromSprites(stateSprites: PlayerStateSprites): Player {
     return {
         state: defaultState,
@@ -50,10 +55,10 @@ export function update(step: number, input: InputState, player: Player): Player 
 }
 
 function updateState(input: InputState, state: PlayerState): PlayerState {
-    if (input[40]) return 'walking down';
-    if (input[38]) return 'walking up';
-    if (input[37]) return 'walking left';
-    if (input[39]) return 'walking right';
+    if (input[moveDownKey]) return 'walking down';
+    if (input[moveUpKey]) return 'walking up';
+    if (input[moveLeftKey]) return 'walking left';
+    if (input[moveRightKey]) return 'walking right';
 
     if (state === 'walking down') return 'facing down';
     if (state === 'walking up') return 'facing up';
@@ -66,10 +71,10 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
 function updatePosition(step: number, input: InputState, pos: Position): Position {
     let res = pos;
 
-    if (input[40]) res = position.moveDown(res, step / 8);
-    if (input[38]) res = position.moveUp(res, step / 8);
-    if (input[39]) res = position.moveRight(res, step / 8);
-    if (input[37]) res = position.moveLeft(res, step / 8);
+    if (input[moveDownKey]) res = position.moveDown(res, step / 8);
+    if (input[moveUpKey]) res = position.moveUp(res, step / 8);
+    if (input[moveRightKey]) res = position.moveRight(res, step / 8);
+    if (input[moveLeftKey]) res = position.moveLeft(res, step / 8);
 
     return res;
 }
