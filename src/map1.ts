@@ -1,9 +1,11 @@
 import { loadImage } from './core';
+import type { GameMap } from './game-map';
 import * as sprite from './sprite'
+import * as gameMap from './game-map';
 
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 
-export async function load() {
+export async function load(): Promise<GameMap> {
     const grassImage = await loadImage(GrassTileset);
 
     const grassCornerTL = sprite.staticSprite(grassImage, 16, 0, 8);
@@ -16,7 +18,7 @@ export async function load() {
     const grassEdgeB = sprite.staticSprite(grassImage, 16, 3, 9);
     const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
-    return [
+    return gameMap.fromSpriteMatrix([
         [grassCornerTL, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassCornerTR],
         [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
         [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
@@ -25,5 +27,5 @@ export async function load() {
         [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
         [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
         [grassCornerBL, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassCornerBR]
-    ];
+    ]);
 }

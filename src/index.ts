@@ -1,14 +1,14 @@
 import { Renderer, renderSolidBackground, InputState } from './core';
-import type { Sprite } from './sprite';
+import type { GameMap } from './game-map';
 import type { Player } from './player';
-import * as sprite from './sprite';
 import * as player from './player';
+import * as gameMap from './game-map';
 
 import * as map1 from './map1';
 import * as playerSprites from './player-sprites';
 
 export type GameState = {
-    map: Sprite[][],
+    map: GameMap,
     player: Player
 }
 
@@ -57,9 +57,7 @@ function update(gameState: GameState, step: number, input: InputState): GameStat
 function getRenderers(gameState: GameState): Renderer[] {
     return [
         renderSolidBackground('black'),
-        ...gameState
-            .map
-            .flatMap((row, i) => row.map((t, j) => sprite.renderOnGrid(t, j + 1, i + 1))),
+        gameMap.render(gameState.map),
         player.render(gameState.player)
     ];
 }

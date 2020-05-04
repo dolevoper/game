@@ -66,10 +66,6 @@ export function render(sprite: Sprite, x: number, y: number): Renderer {
     return sprite.kind === 'static' ? renderStaticSprite(sprite, x, y) : renderStaticSprite(toStatic(sprite), x, y);
 }
 
-export function renderOnGrid(sprite: Sprite, x: number, y: number): Renderer {
-    return render(sprite, x * sprite.size, y * sprite.size);
-}
-
 function renderStaticSprite({ image, size, i, j }: StaticSprite, x: number, y: number): Renderer {
     return ctx => ctx.drawImage(
         image,
