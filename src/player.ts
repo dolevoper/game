@@ -66,10 +66,10 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
 function updatePosition(input: InputState, pos: Position): Position {
     let res = pos;
 
-    if (input[40]) res = position.moveDown(res);
-    if (input[38]) res = position.moveUp(res);
-    if (input[39]) res = position.moveRight(res);
-    if (input[37]) res = position.moveLeft(res);
+    if (input[40]) res = position.moveDown(res, 5);
+    if (input[38]) res = position.moveUp(res, 5);
+    if (input[39]) res = position.moveRight(res, 5);
+    if (input[37]) res = position.moveLeft(res, 5);
 
     return res;
 }

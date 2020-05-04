@@ -19,13 +19,8 @@ export async function load(): Promise<GameMap> {
     const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
     return gameMap.fromSpriteMatrix([
-        [grassCornerTL, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassCornerTR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassEdgeL, grass, grass, grass, grass, grass, grass, grassEdgeR],
-        [grassCornerBL, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassEdgeB, grassCornerBR]
+        [grassCornerTL, ...Array(70).fill(grassEdgeT), grassCornerTR],
+        ...Array(70).fill([grassEdgeL, ...Array(70).fill(grass), grassEdgeR]),
+        [grassCornerBL, ...Array(70).fill(grassEdgeB), grassCornerBR]
     ]);
 }

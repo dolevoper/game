@@ -1,4 +1,5 @@
 import type { Renderer, InputState } from './core';
+import type { Position } from './position';
 import type { GameMap } from './game-map';
 import type { Player } from './player';
 import * as player from './player';
@@ -16,13 +17,16 @@ async function startGame() {
     const viewPortCanvas = document.getElementById('app') as HTMLCanvasElement;
     
     if (!viewPortCanvas) return;
-    
+
     const viewPortCtx = viewPortCanvas.getContext('2d');
 
-    const gameCanvas = document.createElement('canvas');
-    const gameCtx = gameCanvas.getContext('2d');
+    const sceneCanvas = document.createElement('canvas');
+    const sceneCtx = sceneCanvas.getContext('2d');
 
-    if (!viewPortCtx || !gameCtx) return;
+    if (!viewPortCtx || !sceneCtx) return;
+
+    sceneCanvas.width = 72 * 16;
+    sceneCanvas.height = 72 * 16;
 
     let start = 0;
     let inputState: InputState = {};
@@ -44,22 +48,12 @@ async function startGame() {
 
         gameState = update(gameState, step, inputState);
 
-        gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-        getRenderers(gameState).forEach(renderer => renderer(gameCtx));
+        sceneCtx.clearRect(0, 0, sceneCanvas.width, sceneCanvas.height);
+        getRenderers(gameState).forEach(renderer => renderer(sceneCtx));
 
         viewPortCtx.fillStyle = 'black';
         viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
-        viewPortCtx.drawImage(
-            gameCanvas,
-            gameState.player.position[0] - (viewPortCanvas.width / 2) + 8,
-            gameState.player.position[1] - (viewPortCanvas.height / 2) + 8,
-            viewPortCanvas.width,
-            viewPortCanvas.height,
-            0,
-            0,
-            viewPortCanvas.width,
-            viewPortCanvas.height
-        );
+        render(gameState.player.position, sceneCanvas, viewPortCtx);
 
         start = timestamp;
         requestAnimationFrame(gameLoop);
@@ -78,6 +72,23 @@ function getRenderers(gameState: GameState): Renderer[] {
         gameMap.render(gameState.map),
         player.render(gameState.player)
     ];
+}
+
+function render(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {
+    const sceneWidthBiggerThanViewPort = sceneCanvas.width > viewPortCtx.canvas.width;
+    const sceneHeightBiggerThanViewPort = sceneCanvas.height > viewPortCtx.canvas.height;
+    
+    viewPortCtx.drawImage(
+        sceneCanvas,
+        sceneWidthBiggerThanViewPort ? playerPosition[0] - (viewPortCtx.canvas.width / 2) + 8 : 0,
+        sceneHeightBiggerThanViewPort ? playerPosition[1] - (viewPortCtx.canvas.height / 2) + 8 : 0,
+        sceneWidthBiggerThanViewPort ? viewPortCtx.canvas.width : sceneCanvas.width,
+        sceneHeightBiggerThanViewPort ? viewPortCtx.canvas.height : sceneCanvas.height,
+        sceneWidthBiggerThanViewPort ? 0 : (viewPortCtx.canvas.width - sceneCanvas.width) / 2,
+        sceneHeightBiggerThanViewPort ? 0 : (viewPortCtx.canvas.height - sceneCanvas.height) / 2,
+        sceneWidthBiggerThanViewPort ? viewPortCtx.canvas.width : sceneCanvas.width,
+        sceneHeightBiggerThanViewPort ? viewPortCtx.canvas.height : sceneCanvas.height
+    );
 }
 
 startGame();
