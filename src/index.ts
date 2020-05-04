@@ -27,9 +27,6 @@ async function startGame() {
 
     if (!viewPortCtx || !sceneCtx) return;
 
-    // sceneCanvas.width = 72 * 16;
-    // sceneCanvas.height = 72 * 16;
-
     let start = 0;
     let inputState: InputState = {};
     let gameState: GameState = {
