@@ -19,13 +19,17 @@ export async function load(): Promise<GameMap> {
     const grassEdgeB = sprite.staticSprite(grassImage, 16, 3, 9);
     const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
-    const grid = tileGrid.fill(
-        grass,
-        [0, 0],
-        50,
-        50,
-        tileGrid.empty(16, 50, 50)
-    );
+    const grid = tileGrid.build([
+        tileGrid.tile(grassCornerTL, [0, 0]),
+        tileGrid.tile(grassCornerTR, [49, 0]),
+        tileGrid.tile(grassCornerBL, [0, 49]),
+        tileGrid.tile(grassCornerBR, [49, 49]),
+        tileGrid.fill(grassEdgeT, [1, 0], 48, 1),
+        tileGrid.fill(grassEdgeL, [0, 1], 1, 48),
+        tileGrid.fill(grassEdgeR, [49, 1], 1, 48),
+        tileGrid.fill(grassEdgeB, [1, 49], 48, 1),
+        tileGrid.fill(grass, [1, 1], 48, 48)
+    ], tileGrid.empty(16, 50, 50));
 
     return gameMap.fromTileGrid(grid);
 }
