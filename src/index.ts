@@ -1,4 +1,4 @@
-import { Renderer, renderSolidBackground, InputState } from './core';
+import type { Renderer, InputState } from './core';
 import type { GameMap } from './game-map';
 import type { Player } from './player';
 import * as player from './player';
@@ -13,13 +13,16 @@ export type GameState = {
 }
 
 async function startGame() {
-    const canvas = document.getElementById('app') as HTMLCanvasElement;
+    const viewPortCanvas = document.getElementById('app') as HTMLCanvasElement;
+    
+    if (!viewPortCanvas) return;
+    
+    const viewPortCtx = viewPortCanvas.getContext('2d');
 
-    if (!canvas) return;
+    const gameCanvas = document.createElement('canvas');
+    const gameCtx = gameCanvas.getContext('2d');
 
-    const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-
-    if (!ctx) return;
+    if (!viewPortCtx || !gameCtx) return;
 
     let start = 0;
     let inputState: InputState = {};
@@ -40,7 +43,23 @@ async function startGame() {
         const step = timestamp - start;
 
         gameState = update(gameState, step, inputState);
-        getRenderers(gameState).forEach(renderer => renderer(ctx));
+
+        gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+        getRenderers(gameState).forEach(renderer => renderer(gameCtx));
+
+        viewPortCtx.fillStyle = 'black';
+        viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
+        viewPortCtx.drawImage(
+            gameCanvas,
+            gameState.player.position[0] - (viewPortCanvas.width / 2) + 8,
+            gameState.player.position[1] - (viewPortCanvas.height / 2) + 8,
+            viewPortCanvas.width,
+            viewPortCanvas.height,
+            0,
+            0,
+            viewPortCanvas.width,
+            viewPortCanvas.height
+        );
 
         start = timestamp;
         requestAnimationFrame(gameLoop);
@@ -56,7 +75,6 @@ function update(gameState: GameState, step: number, input: InputState): GameStat
 
 function getRenderers(gameState: GameState): Renderer[] {
     return [
-        renderSolidBackground('black'),
         gameMap.render(gameState.map),
         player.render(gameState.player)
     ];
