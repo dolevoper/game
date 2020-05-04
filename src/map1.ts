@@ -19,8 +19,8 @@ export async function load(): Promise<GameMap> {
     const grassEdgeB = sprite.staticSprite(grassImage, 16, 3, 9);
     const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
-    const gridWidth = 70;
-    const gridHeight = 50;
+    const gridWidth = 20;
+    const gridHeight = 10;
 
     const grid = tileGrid.build([
         tileGrid.tile(grassCornerTL, [0, 0]),

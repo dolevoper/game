@@ -83,28 +83,29 @@ function renderScene(gameState: GameState, sceneCtx: CanvasRenderingContext2D) {
 }
 
 function renderView(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {
+    const scale = 2;
     const viewPortCanvas = viewPortCtx.canvas;
 
     let sx = 0;
     let sy = 0;
     let sw = sceneCanvas.width;
     let sh = sceneCanvas.height;
-    let dx = (viewPortCanvas.width - sceneCanvas.width) / 2;
-    let dy = (viewPortCanvas.height - sceneCanvas.height) / 2;
-    let dw = sceneCanvas.width;
-    let dh = sceneCanvas.height;
+    let dx = (viewPortCanvas.width - (sceneCanvas.width * scale)) / 2;
+    let dy = (viewPortCanvas.height - (sceneCanvas.height * scale)) / 2;
+    let dw = sceneCanvas.width * scale;
+    let dh = sceneCanvas.height * scale;
 
-    if (viewPortCanvas.width < sceneCanvas.width) {
-        sx = Math.min(sceneCanvas.width - viewPortCanvas.width, Math.max(0, playerPosition[0] - (viewPortCtx.canvas.width / 2) + 8));
+    if ((viewPortCanvas.width / scale) < sceneCanvas.width) {
+        sx = Math.min(sceneCanvas.width - (viewPortCanvas.width / scale), Math.max(0, playerPosition[0] - (viewPortCanvas.width / (2 * scale)) + 8));
         dx = 0;
-        sw = viewPortCanvas.width;
+        sw = viewPortCanvas.width / scale;
         dw = viewPortCanvas.width;
     }
 
-    if (viewPortCanvas.height < sceneCanvas.height) {
-        sy = Math.min(sceneCanvas.height - viewPortCanvas.height, Math.max(0, playerPosition[1] - (viewPortCtx.canvas.height / 2) + 8));
+    if ((viewPortCanvas.height / scale) < sceneCanvas.height) {
+        sy = Math.min(sceneCanvas.height - (viewPortCanvas.height / scale), Math.max(0, playerPosition[1] - (viewPortCanvas.height / (2 * scale)) + 8));
         dy = 0;
-        sh = viewPortCanvas.height;
+        sh = viewPortCanvas.height / scale;
         dh = viewPortCanvas.height;
     }
     
