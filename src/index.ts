@@ -1,4 +1,5 @@
-import type { Renderer, InputState } from './core';
+import type { InputState } from './core';
+import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { GameMap } from './game-map';
 import type { Player } from './player';

@@ -1,18 +1,15 @@
-import type { Renderer } from './core';
-import type { Sprite } from './sprite';
-import type { Tile } from './tile';
-import * as tile from './tile';
+import type { Renderer } from './rendering';
+import type { TileGrid } from './tile-grid';
+import * as tileGrid from './tile-grid';
 
-export interface GameMap {
-    tiles: Tile[]
-}
+export interface GameMap extends TileGrid {}
 
-export function fromSpriteMatrix(matrix: Sprite[][]): GameMap {
+export function fromTileGrid(grid: TileGrid): GameMap {
     return {
-        tiles: matrix.flatMap((row, i) => row.map((sprite, j) => tile.fromSprite(sprite, [j, i])))
+        ...grid
     };
 }
 
 export function render(gameMap: GameMap): Renderer {
-    return ctx => gameMap.tiles.map(tile.render).forEach(renderer => renderer(ctx));
+    return tileGrid.render(gameMap);
 }

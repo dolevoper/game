@@ -1,4 +1,4 @@
-import type { Renderer } from './core';
+import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { ZipList } from './zip-list';
 import * as zipList from './zip-list';

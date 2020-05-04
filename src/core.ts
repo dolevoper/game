@@ -1,5 +1,3 @@
-export type Renderer = (ctx: CanvasRenderingContext2D) => void;
-
 export type InputState = { [k: number]: boolean };
 
 export function loadImage(src: string): Promise<HTMLImageElement> {

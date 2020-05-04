@@ -1,4 +1,5 @@
-import type { InputState, Renderer } from './core';
+import type { InputState } from './core';
+import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { Sprite } from './sprite';
 import * as position from './position';
