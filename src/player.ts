@@ -1,10 +1,8 @@
 import type { InputState, Renderer } from './core';
 import type { Position } from './position';
 import type { Sprite } from './sprite';
-import type { AnimatedSprite } from './animated-sprite';
 import * as position from './position';
 import * as sprite from './sprite';
-import * as animatedSprite from './animated-sprite';
 
 export type PlayerState
     = 'facing down'
@@ -16,12 +14,12 @@ export type PlayerState
     | 'walking left'
     | 'walking right';
 
-export type PlayerStateSprites = { [k in PlayerState]: Sprite | AnimatedSprite };
+export type PlayerStateSprites = { [k in PlayerState]: Sprite };
 
 export interface Player {
     state: PlayerState;
     position: Position;
-    sprite: Sprite | AnimatedSprite;
+    sprite: Sprite;
     stateSprites: PlayerStateSprites;
 }
 
@@ -37,8 +35,6 @@ export function fromSprites(stateSprites: PlayerStateSprites): Player {
 }
 
 export function render(player: Player): Renderer {
-    if (animatedSprite.isAnimatedSprite(player.sprite)) return animatedSprite.render(player.sprite, player.position[0], player.position[1]);
-
     return sprite.render(player.sprite, player.position[0], player.position[1]);
 }
 
@@ -78,10 +74,8 @@ function updatePosition(input: InputState, pos: Position): Position {
     return res;
 }
 
-function updateSprite(step: number, nextState: PlayerState, player: Player): Sprite | AnimatedSprite {
+function updateSprite(step: number, nextState: PlayerState, player: Player): Sprite {
     if (player.state !== nextState) return player.stateSprites[nextState];
 
-    if (!animatedSprite.isAnimatedSprite(player.sprite)) return player.sprite;
-
-    return animatedSprite.mapStep(step, player.sprite);
+    return sprite.mapStep(step, player.sprite);
 }

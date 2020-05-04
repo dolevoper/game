@@ -6,15 +6,15 @@ import GrassTileset from './assets/AH_Autotile_Grass.png';
 export async function load() {
     const grassImage = await loadImage(GrassTileset);
 
-    const grassCornerTL = sprite.fromImage(grassImage, 16, 0, 8);
-    const grassCornerTR = sprite.fromImage(grassImage, 16, 0, 11);
-    const grassCornerBL = sprite.fromImage(grassImage, 16, 3, 8);
-    const grassCornerBR = sprite.fromImage(grassImage, 16, 3, 11);
-    const grassEdgeT = sprite.fromImage(grassImage, 16, 0, 10);
-    const grassEdgeL = sprite.fromImage(grassImage, 16, 1, 8);
-    const grassEdgeR = sprite.fromImage(grassImage, 16, 2, 11);
-    const grassEdgeB = sprite.fromImage(grassImage, 16, 3, 9);
-    const grass = sprite.fromImage(grassImage, 16, 2, 9);
+    const grassCornerTL = sprite.staticSprite(grassImage, 16, 0, 8);
+    const grassCornerTR = sprite.staticSprite(grassImage, 16, 0, 11);
+    const grassCornerBL = sprite.staticSprite(grassImage, 16, 3, 8);
+    const grassCornerBR = sprite.staticSprite(grassImage, 16, 3, 11);
+    const grassEdgeT = sprite.staticSprite(grassImage, 16, 0, 10);
+    const grassEdgeL = sprite.staticSprite(grassImage, 16, 1, 8);
+    const grassEdgeR = sprite.staticSprite(grassImage, 16, 2, 11);
+    const grassEdgeB = sprite.staticSprite(grassImage, 16, 3, 9);
+    const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
     return [
         [grassCornerTL, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassEdgeT, grassCornerTR],
