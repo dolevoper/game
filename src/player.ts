@@ -6,7 +6,15 @@ import * as position from './position';
 import * as sprite from './sprite';
 import * as animatedSprite from './animated-sprite';
 
-export type PlayerState = 'facing down' | 'walking down';
+export type PlayerState
+    = 'facing down'
+    | 'facing up'
+    | 'facing left'
+    | 'facing right'
+    | 'walking down'
+    | 'walking up'
+    | 'walking left'
+    | 'walking right';
 
 export type PlayerStateSprites = { [k in PlayerState]: Sprite | AnimatedSprite };
 
@@ -47,8 +55,16 @@ export function update(step: number, input: InputState, player: Player): Player 
 
 function updateState(input: InputState, state: PlayerState): PlayerState {
     if (input[40]) return 'walking down';
+    if (input[38]) return 'walking up';
+    if (input[37]) return 'walking left';
+    if (input[39]) return 'walking right';
 
-    return 'facing down';
+    if (state === 'walking down') return 'facing down';
+    if (state === 'walking up') return 'facing up';
+    if (state === 'walking left') return 'facing left';
+    if (state === 'walking right') return 'facing right';
+
+    return state;
 }
 
 function updatePosition(input: InputState, pos: Position): Position {
