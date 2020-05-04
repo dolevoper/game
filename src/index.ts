@@ -1,13 +1,16 @@
 import { Renderer, renderSolidBackground } from './core';
-import { renderTile, Tile } from './tile';
-import { Sprite, renderSprite, updateSprite } from './sprite';
+import type { Position } from './position';
+import type { Sprite } from './sprite';
+import type { AnimatedSprite } from './animated-sprite';
 import * as position from './position';
+import * as animatedSprite from './animated-sprite';
+import * as sprite from './sprite';
 
 export type GameState = {
-    map: Tile[][],
+    map: Sprite[][],
     player: {
-        sprite: Sprite,
-        position: position.Position
+        sprite: AnimatedSprite,
+        position: Position
     }
 }
 
@@ -55,13 +58,13 @@ function update(gameState: GameState, step: number, input: InputState): GameStat
     return {
         ...gameState,
         player: {
-            sprite: updateSprite(gameState.player.sprite, step),
+            sprite: animatedSprite.mapStep(step, gameState.player.sprite),
             position: updatePosition(gameState.player.position, input)
         }
     };
 }
 
-function updatePosition(pos: position.Position, input: InputState): position.Position {
+function updatePosition(pos: Position, input: InputState): Position {
     let res = pos;
 
     if (input[40]) res = position.moveDown(res);
@@ -77,8 +80,8 @@ function getRenderers(gameState: GameState): Renderer[] {
         renderSolidBackground('black'),
         ...gameState
             .map
-            .flatMap((row, i) => row.map((t, j) => renderTile(t, j + 1, i + 1))),
-        renderSprite(gameState.player.sprite, gameState.player.position[0], gameState.player.position[1])
+            .flatMap((row, i) => row.map((t, j) => sprite.renderOnGrid(t, j + 1, i + 1))),
+        sprite.render(animatedSprite.sprite(gameState.player.sprite), gameState.player.position[0], gameState.player.position[1])
     ];
 }
 
