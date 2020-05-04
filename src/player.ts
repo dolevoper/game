@@ -44,7 +44,7 @@ export function update(step: number, input: InputState, player: Player): Player 
     return {
         ...player,
         state: nextState,
-        position: updatePosition(input, player.position),
+        position: updatePosition(step, input, player.position),
         sprite: updateSprite(step, nextState, player)
     };
 }
@@ -63,13 +63,13 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
     return state;
 }
 
-function updatePosition(input: InputState, pos: Position): Position {
+function updatePosition(step: number, input: InputState, pos: Position): Position {
     let res = pos;
 
-    if (input[40]) res = position.moveDown(res, 5);
-    if (input[38]) res = position.moveUp(res, 5);
-    if (input[39]) res = position.moveRight(res, 5);
-    if (input[37]) res = position.moveLeft(res, 5);
+    if (input[40]) res = position.moveDown(res, step / 8);
+    if (input[38]) res = position.moveUp(res, step / 8);
+    if (input[39]) res = position.moveRight(res, step / 8);
+    if (input[37]) res = position.moveLeft(res, step / 8);
 
     return res;
 }
