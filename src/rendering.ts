@@ -4,6 +4,6 @@ export function combineRenderers(renderers: Renderer[]): Renderer {
     return ctx => renderers.forEach(renderer => renderer(ctx));
 }
 
-export function render(ctx: CanvasRenderingContext2D, renderers: Renderer[]) {
-    renderers.forEach(renderer => renderer(ctx));
+export function ap(ctx: CanvasRenderingContext2D, renderer: Renderer) {
+    renderer(ctx);
 }

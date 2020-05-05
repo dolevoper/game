@@ -63,6 +63,14 @@ export function build(builders: TileGridBuilder[], tileGrid: TileGrid): TileGrid
     );
 }
 
+export function renderWidth({ width, tileSize }: TileGrid): number {
+    return width * tileSize;
+}
+
+export function renderHeigth({ height, tileSize }: TileGrid): number {
+    return height * tileSize;
+}
+
 export function render(tileGrid: TileGrid): Renderer {
     const renderTile = createTileRenderer(tileGrid.tileSize);
 

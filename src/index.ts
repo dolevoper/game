@@ -1,19 +1,12 @@
 import type { InputState } from './core';
-import type { Renderer } from './rendering';
 import type { Position } from './position';
-import type { GameMap } from './game-map';
-import type { Player } from './player';
+import type { GameState } from './game-state';
 import * as rendering from './rendering';
-import * as player from './player';
-import * as gameMap from './game-map';
+import * as gameState from './game-state';
+import * as tileGrid from './tile-grid';
 
 import * as map1 from './map1';
 import * as playerSprites from './player-sprites';
-
-export type GameState = {
-    map: GameMap,
-    player: Player
-}
 
 async function startGame() {
     const viewPortCanvas = document.getElementById('app') as HTMLCanvasElement;
@@ -29,10 +22,10 @@ async function startGame() {
 
     let start = 0;
     let inputState: InputState = {};
-    let gameState: GameState = {
-        map: await map1.load(),
-        player: player.fromSprites(await playerSprites.load())
-    };
+    let state: GameState = gameState.init(
+        await playerSprites.load(),
+        await map1.load()
+    );
 
     document.addEventListener('keydown', function (e) {
         inputState[e.keyCode] = true;
@@ -45,46 +38,32 @@ async function startGame() {
     requestAnimationFrame(function gameLoop(timestamp) {
         const step = timestamp - start;
 
-        gameState = update(gameState, step, inputState);
+        state = gameState.update(step, inputState, state);
 
-        renderScene(gameState, sceneCtx);
-
-        viewPortCtx.fillStyle = 'black';
-        viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
-        renderView(gameState.player.position, sceneCanvas, viewPortCtx);
+        renderScene(state, sceneCtx);
+        renderView(state.player.position, sceneCanvas, viewPortCtx);
 
         start = timestamp;
         requestAnimationFrame(gameLoop);
     });
 }
 
-function update(gameState: GameState, step: number, input: InputState): GameState {
-    return {
-        ...gameState,
-        player: player.update(step, input, gameState.player)
-    };
-}
-
-function getRenderers(gameState: GameState): Renderer[] {
-    return [
-        gameMap.render(gameState.map),
-        player.render(gameState.player)
-    ];
-}
-
-function renderScene(gameState: GameState, sceneCtx: CanvasRenderingContext2D) {
+function renderScene(state: GameState, sceneCtx: CanvasRenderingContext2D) {
     const canvas = sceneCtx.canvas;
 
-    canvas.width = gameMap.width(gameState.map);
-    canvas.height = gameMap.height(gameState.map);
+    canvas.width = tileGrid.renderWidth(state.map);
+    canvas.height = tileGrid.renderHeigth(state.map);
 
     sceneCtx.clearRect(0, 0, canvas.width, canvas.height);
-    rendering.render(sceneCtx, getRenderers(gameState));
+    rendering.ap(sceneCtx, gameState.render(state));
 }
 
 function renderView(playerPosition: Position, sceneCanvas: HTMLCanvasElement, viewPortCtx: CanvasRenderingContext2D) {
     const scale = 2;
     const viewPortCanvas = viewPortCtx.canvas;
+
+    viewPortCtx.fillStyle = 'black';
+    viewPortCtx.fillRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
 
     let sx = 0;
     let sy = 0;

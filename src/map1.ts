@@ -1,12 +1,11 @@
+import type { TileGrid } from './tile-grid';
 import { loadImage } from './core';
-import type { GameMap } from './game-map';
 import * as sprite from './sprite'
-import * as gameMap from './game-map';
 import * as tileGrid from './tile-grid';
 
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 
-export async function load(): Promise<GameMap> {
+export async function load(): Promise<TileGrid> {
     const grassImage = await loadImage(GrassTileset);
 
     const grassCornerTL = sprite.staticSprite(grassImage, 16, 0, 8);
@@ -34,5 +33,5 @@ export async function load(): Promise<GameMap> {
         tileGrid.fill(grass, [1, 1], gridWidth - 2, gridHeight - 2)
     ], tileGrid.empty(16, gridWidth, gridHeight));
 
-    return gameMap.fromTileGrid(grid);
+    return grid;
 }
