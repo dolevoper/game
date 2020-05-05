@@ -50,7 +50,7 @@ export function update(step: number, input: InputState, player: Player): Player 
     return {
         ...player,
         state: nextState,
-        position: updatePosition(step, input, player.position),
+        position: updatePosition(step, input, player),
         sprite: updateSprite(step, nextState, player)
     };
 }
@@ -69,13 +69,16 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
     return state;
 }
 
-function updatePosition(step: number, input: InputState, pos: Position): Position {
-    let res = pos;
+function updatePosition(step: number, input: InputState, player: Player): Position {
+    const movementSpeed = 1.5; // tiles per second
+    const amount = step / player.sprite.size * movementSpeed;
 
-    if (input[moveDownKey]) res = position.moveDown(res, step / 8);
-    if (input[moveUpKey]) res = position.moveUp(res, step / 8);
-    if (input[moveRightKey]) res = position.moveRight(res, step / 8);
-    if (input[moveLeftKey]) res = position.moveLeft(res, step / 8);
+    let res = player.position;
+
+    if (input[moveDownKey]) res = position.moveDown(res, amount);
+    if (input[moveUpKey]) res = position.moveUp(res, amount);
+    if (input[moveRightKey]) res = position.moveRight(res, amount);
+    if (input[moveLeftKey]) res = position.moveLeft(res, amount);
 
     return res;
 }
