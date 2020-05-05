@@ -34,7 +34,7 @@ const moveDownKey = 40;
 export function fromSprites(stateSprites: PlayerStateSprites): Player {
     return {
         state: defaultState,
-        position: [4 * 16, 4 * 16],
+        position: position.fromScalar(0),
         sprite: stateSprites[defaultState],
         stateSprites
     };

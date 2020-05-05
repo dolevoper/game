@@ -20,10 +20,14 @@ export function init(playerStateSprites: PlayerStateSprites, map: TileGrid): Gam
 }
 
 export function update(step: number, input: InputState, gameState: GameState): GameState {
-    return {
+    const res = {
         ...gameState,
         player: player.update(step, input, gameState.player)
     };
+
+    res.player.position = position.clamp([0, 0], res.player.position, [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]);
+
+    return res;
 }
 
 export function render(scale: number, gameState: GameState): Renderer {
