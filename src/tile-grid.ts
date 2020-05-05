@@ -81,6 +81,6 @@ export function render(tileGrid: TileGrid): Renderer {
 
 function createTileRenderer(tileSize: number) {
     return function (tile: Tile): Renderer {
-        return sprite.render(tile.sprite, tile.position[0] * tileSize, tile.position[1] * tileSize);
+        return sprite.render(tile.position[0] * tileSize, tile.position[1] * tileSize, tile.sprite);
     }
 }

@@ -19,7 +19,7 @@ export async function load(): Promise<TileGrid> {
     const grass = sprite.staticSprite(grassImage, 16, 2, 9);
 
     const gridWidth = 20;
-    const gridHeight = 10;
+    const gridHeight = 20;
 
     const grid = tileGrid.build([
         tileGrid.tile(grassCornerTL, [0, 0]),

@@ -62,7 +62,7 @@ export function mapStep(step: number, sprite: Sprite): Sprite {
     };
 }
 
-export function render(sprite: Sprite, x: number, y: number): Renderer {
+export function render(x: number, y: number, sprite: Sprite): Renderer {
     return sprite.kind === 'static' ? renderStaticSprite(sprite, x, y) : renderStaticSprite(toStatic(sprite), x, y);
 }
 
