@@ -2,6 +2,7 @@ import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { Sprite } from './sprite';
 import * as rendering from './rendering';
+import * as position from './position';
 import * as sprite from './sprite';
 
 type Tile = { sprite: Sprite, position: Position };
@@ -71,16 +72,16 @@ export function renderHeigth({ height, tileSize }: TileGrid): number {
     return height * tileSize;
 }
 
-export function render(tileGrid: TileGrid): Renderer {
-    const renderTile = createTileRenderer(tileGrid.tileSize);
+export function render(transform: DOMMatrix, tileGrid: TileGrid): Renderer {
+    const renderTile = createTileRenderer(transform, tileGrid.tileSize);
 
     return rendering.combineRenderers(
         tileGrid.tiles.map(renderTile)
     );
 }
 
-function createTileRenderer(tileSize: number) {
+function createTileRenderer(transform: DOMMatrix, tileSize: number) {
     return function (tile: Tile): Renderer {
-        return sprite.render(tile.position[0] * tileSize, tile.position[1] * tileSize, tile.sprite);
+        return sprite.render(transform.translate(...position.scale(tileSize, tile.position)), tile.sprite);
     }
 }

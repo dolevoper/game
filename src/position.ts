@@ -16,6 +16,14 @@ export function add([x1, y1]: Position, pos?: Position): Position | PositionBuil
     return pos ? build(pos) : build;
 }
 
+export function scale(scalar: number): PositionBuilder;
+export function scale(scalar: number, position: Position): Position;
+export function scale(scalar: number, position?: Position): Position | PositionBuilder {
+    const build: PositionBuilder = ([x, y]) => [x * scalar, y * scalar];
+
+    return position ? build(position) : build;
+}
+
 export function build(builders: PositionBuilder[], position: Position): Position {
     return builders.reduce(
         (res, builder) => builder(res),

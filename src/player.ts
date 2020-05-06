@@ -41,7 +41,7 @@ export function fromSprites(stateSprites: PlayerStateSprites): Player {
 }
 
 export function render(player: Player): Renderer {
-    return sprite.render(player.position[0], player.position[1], player.sprite);
+    return sprite.render(new DOMMatrix().translate(...player.position), player.sprite);
 }
 
 export function update(step: number, input: InputState, player: Player): Player {

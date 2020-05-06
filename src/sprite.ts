@@ -62,32 +62,33 @@ export function mapStep(step: number, sprite: Sprite): Sprite {
     };
 }
 
-export function render(x: number, y: number, sprite: Sprite): Renderer {
-    return sprite.kind === 'static' ? renderStaticSprite(sprite, x, y) : renderStaticSprite(toStatic(sprite), x, y);
+export function render(transform: DOMMatrix, sprite: Sprite): Renderer {
+    return sprite.kind === 'static' ? renderStaticSprite(transform, sprite) : renderStaticSprite(transform, toStatic(sprite));
 }
 
-function renderStaticSprite({ image, size, i, j }: StaticSprite, x: number, y: number): Renderer {
-    return ctx => ctx.drawImage(
-        image,
-        j * size,
-        i * size,
-        size,
-        size,
-        x,
-        y,
-        size,
-        size
-    );
+function renderStaticSprite(transform: DOMMatrix, { image, size, i, j }: StaticSprite): Renderer {
+    return ctx => {
+        const storedTransform = ctx.getTransform();
+
+        ctx.transform(transform.a, transform.b, transform.c, transform.d, transform.e, transform.f);
+        ctx.drawImage(
+            image,
+            j * size,
+            i * size,
+            size,
+            size,
+            0,
+            0,
+            size,
+            size
+        );
+
+        ctx.setTransform(storedTransform);
+    };
 }
 
 function toStatic(sprite: AnimatedSprite): StaticSprite {
     const [i, j] = zipList.curr(sprite);
 
-    return {
-        kind: 'static',
-        image: sprite.image,
-        size: sprite.size,
-        i,
-        j
-    };
+    return staticSprite(sprite.image, sprite.size, i, j) as StaticSprite;
 }

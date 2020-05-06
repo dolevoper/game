@@ -87,12 +87,8 @@ export function render(scale: number, gameState: GameState): Renderer {
 
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
-        tileGrid.render(gameState.map),
-        ctx => {
-            ctx.setTransform(1, 0, 0, 1, gameState.house.position[0], gameState.house.position[1]);
-            rendering.ap(ctx, tileGrid.render(gameState.house));
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-        },
+        tileGrid.render(new DOMMatrix, gameState.map),
+        tileGrid.render(new DOMMatrix().translate(...gameState.house.position), gameState.house),
         player.render(gameState.player)
     ]);
 }
