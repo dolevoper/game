@@ -1,4 +1,5 @@
 import type { InputState } from './core';
+import type { Position } from './position';
 import type { Renderer } from './rendering';
 import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
@@ -10,12 +11,14 @@ import * as tileGrid from './tile-grid';
 export interface GameState {
     player: Player;
     map: TileGrid;
+    house: TileGrid & { position: Position };
 }
 
-export function init(playerStateSprites: PlayerStateSprites, map: TileGrid): GameState {
+export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, house: TileGrid & { position: Position }): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
-        map
+        map,
+        house
     };
 }
 
@@ -25,7 +28,11 @@ export function update(step: number, input: InputState, gameState: GameState): G
         player: player.update(step, input, gameState.player)
     };
 
-    res.player.position = position.clamp([0, 0], res.player.position, [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]);
+    res.player.position = position.clamp(
+        [0, 0],
+        res.player.position,
+        [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]
+    );
 
     return res;
 }
@@ -81,6 +88,11 @@ export function render(scale: number, gameState: GameState): Renderer {
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
         tileGrid.render(gameState.map),
+        ctx => {
+            ctx.setTransform(1, 0, 0, 1, gameState.house.position[0], gameState.house.position[1]);
+            rendering.ap(ctx, tileGrid.render(gameState.house));
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        },
         player.render(gameState.player)
     ]);
 }

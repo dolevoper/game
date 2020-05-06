@@ -5,6 +5,7 @@ import * as gameState from './game-state';
 
 import * as map1 from './map1';
 import * as playerSprites from './player-sprites';
+import * as house from './house';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
@@ -15,7 +16,8 @@ async function startGame() {
     let inputState: InputState = {};
     let state: GameState = gameState.init(
         await playerSprites.load(),
-        await map1.load()
+        await map1.load(),
+        await house.load()
     );
 
     document.addEventListener('keydown', function (e) {
