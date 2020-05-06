@@ -3,15 +3,17 @@ import type { Position } from './position';
 import type { Renderer } from './rendering';
 import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
+import type { TileBlock } from './tile-block';
 import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
+import * as tileBlock from './tile-block';
 
 export interface GameState {
     player: Player;
     map: TileGrid;
-    house: TileGrid & { position: Position };
+    house: TileBlock;
 }
 
 export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, house: TileGrid & { position: Position }): GameState {
@@ -88,7 +90,7 @@ export function render(scale: number, gameState: GameState): Renderer {
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
         tileGrid.render(new DOMMatrix, gameState.map),
-        tileGrid.render(new DOMMatrix().translate(...gameState.house.position), gameState.house),
+        tileBlock.render(gameState.house),
         player.render(gameState.player)
     ]);
 }
