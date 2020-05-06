@@ -1,22 +1,22 @@
 import type { InputState } from './core';
-import type { Position } from './position';
 import type { Renderer } from './rendering';
 import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
-import type { TileBlock } from './tile-block';
+import type { House } from './house';
 import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
 import * as tileBlock from './tile-block';
+import * as collider from './collider';
 
 export interface GameState {
     player: Player;
     map: TileGrid;
-    house: TileBlock;
+    house: House;
 }
 
-export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, house: TileGrid & { position: Position }): GameState {
+export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, house: House): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
         map,
@@ -35,6 +35,10 @@ export function update(step: number, input: InputState, gameState: GameState): G
         res.player.position,
         [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]
     );
+
+    if (collider.isColliding(player.collider(res.player), res.house.collider)) {
+        res.player.position = gameState.player.position;
+    }
 
     return res;
 }

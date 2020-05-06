@@ -2,6 +2,7 @@ import type { InputState } from './core';
 import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { Sprite } from './sprite';
+import type { Collider } from './collider';
 import * as position from './position';
 import * as sprite from './sprite';
 
@@ -37,6 +38,14 @@ export function fromSprites(stateSprites: PlayerStateSprites): Player {
         position: position.fromScalar(0),
         sprite: stateSprites[defaultState],
         stateSprites
+    };
+}
+
+export function collider(player: Player): Collider {
+    return {
+        position: player.position,
+        width: player.sprite.size,
+        height: player.sprite.size
     };
 }
 
