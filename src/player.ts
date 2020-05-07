@@ -94,10 +94,10 @@ function updatePosition(step: number, input: InputState, player: Player): Positi
 
     let res = player.position;
 
-    if (input[moveDownKey]) res = position.moveDown(res, amount);
-    if (input[moveUpKey]) res = position.moveUp(res, amount);
-    if (input[moveRightKey]) res = position.moveRight(res, amount);
-    if (input[moveLeftKey]) res = position.moveLeft(res, amount);
+    if (input[moveDownKey] && player.state !== 'walking up') res = position.moveDown(res, amount);
+    if (input[moveUpKey] && player.state !== 'walking down') res = position.moveUp(res, amount);
+    if (input[moveRightKey] && player.state !== 'walking left') res = position.moveRight(res, amount);
+    if (input[moveLeftKey] && player.state !== 'walking right') res = position.moveLeft(res, amount);
 
     return res;
 }
