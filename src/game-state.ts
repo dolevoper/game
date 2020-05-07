@@ -28,11 +28,24 @@ export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, l
     };
 }
 
-export function addGameObject(newGameObject: GameObject, gameState: GameState): GameState {
-    return {
+type GameStateBuilder = (state: GameState) => GameState;
+
+export function addGameObject(newGameObject: GameObject): GameStateBuilder;
+export function addGameObject(newGameObject: GameObject, gameState: GameState): GameState;
+export function addGameObject(newGameObject: GameObject, gameState?: GameState): GameState | GameStateBuilder {
+    const build: GameStateBuilder = gameState => ({
         ...gameState,
         gameObjects: [...gameState.gameObjects, newGameObject]
-    };
+    });
+
+    return gameState ? build(gameState): build;
+}
+
+export function build(builders: GameStateBuilder[], gameState: GameState): GameState {
+    return builders.reduce(
+        (res, builder) => builder(res),
+        gameState
+    );
 }
 
 export function update(step: number, input: InputState, gameState: GameState): GameState {

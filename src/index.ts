@@ -21,14 +21,22 @@ async function startGame() {
 
     let start = 0;
     let inputState: InputState = {};
-    let state: GameState = gameState.init(
+    let state: GameState = gameState.build([
+        gameState.addGameObject(gameObject.from(bushSprite, [3 * 16, 3 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [6 * 16, 6 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [9 * 16, 3 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [15 * 16, 3 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [16 * 16, 9 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [2 * 16, 18 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [7 * 16, 10 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [13 * 16, 13 * 16])),
+        gameState.addGameObject(gameObject.from(bushSprite, [14 * 16, 14 * 16]))
+    ], gameState.init(
         player,
         layer1,
         layer2,
         colliders
-    );
-
-    state = gameState.addGameObject(gameObject.from(bushSprite, [3 * 16, 3 * 16]), state);
+    ));
 
     document.addEventListener('keydown', function (e) {
         inputState[e.keyCode] = true;
