@@ -7,28 +7,27 @@ import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
-import * as collider from './collider';
 
 export interface GameState {
     player: Player;
     layer1: TileGrid;
     layer2: TileGrid;
-    colliders: Collider[]
+    staticColliders: Collider[]
 }
 
-export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, layer2: TileGrid, colliders: Collider[]): GameState {
+export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, layer2: TileGrid, staticColliders: Collider[]): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
         layer1,
         layer2,
-        colliders
+        staticColliders
     };
 }
 
 export function update(step: number, input: InputState, gameState: GameState): GameState {
     const res = {
         ...gameState,
-        player: player.update(step, input, gameState.player)
+        player: player.update(step, input, gameState.staticColliders, gameState.player)
     };
 
     res.player.position = position.clamp(
@@ -36,10 +35,6 @@ export function update(step: number, input: InputState, gameState: GameState): G
         res.player.position,
         [tileGrid.renderWidth(res.layer1) - res.player.sprite.size, tileGrid.renderHeigth(res.layer1) - res.player.sprite.size]
     );
-
-    if (res.colliders.some(collider.isColliding(player.collider(res.player)))) {
-        res.player.position = gameState.player.position;
-    }
 
     return res;
 }

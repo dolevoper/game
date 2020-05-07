@@ -6,6 +6,7 @@ import type { Collider } from './collider';
 import compose from './compose';
 import * as position from './position';
 import * as sprite from './sprite';
+import * as collider from './collider';
 
 export type PlayerState
     = 'facing down'
@@ -42,25 +43,21 @@ export function fromSprites(stateSprites: PlayerStateSprites): Player {
     };
 }
 
-export function collider(player: Player): Collider {
-    return {
-        position: player.position,
-        width: player.sprite.size,
-        height: player.sprite.size
-    };
+export function getCollider(player: Player): Collider {
+    return collider.fromRect(player.position, player.sprite.size, player.sprite.size);
 }
 
 export function render(player: Player): Renderer {
     return sprite.render(new DOMMatrix().translate(...player.position), player.sprite);
 }
 
-export function update(step: number, input: InputState, player: Player): Player {
+export function update(step: number, input: InputState, colliders: Collider[], player: Player): Player {
     const nextState = updateState(input, player.state);
 
     return {
         ...player,
         state: nextState,
-        position: updatePosition(step, input, player),
+        position: updatePosition(step, input, colliders, player),
         sprite: updateSprite(step, nextState, player)
     };
 }
@@ -88,16 +85,34 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
     return update(input);
 }
 
-function updatePosition(step: number, input: InputState, player: Player): Position {
+function updatePosition(step: number, input: InputState, colliders: Collider[], player: Player): Position {
     const movementSpeed = 1.5; // tiles per second
-    const amount = step / player.sprite.size * movementSpeed;
+    const playerSize = player.sprite.size;
+    const amount = step / playerSize * movementSpeed;
 
     let res = player.position;
 
-    if (input[moveDownKey] && player.state !== 'walking up') res = position.moveDown(res, amount);
-    if (input[moveUpKey] && player.state !== 'walking down') res = position.moveUp(res, amount);
-    if (input[moveRightKey] && player.state !== 'walking left') res = position.moveRight(res, amount);
-    if (input[moveLeftKey] && player.state !== 'walking right') res = position.moveLeft(res, amount);
+    const newPositionOrDefault = (defaultPosition: Position, newPosition: Position) => {
+        const newCollider = collider.fromRect(newPosition, playerSize, playerSize);
+
+        return colliders.some(collider.isColliding(newCollider)) ? defaultPosition : newPosition;
+    };
+
+    if (input[moveDownKey] && player.state !== 'walking up') {
+        res = newPositionOrDefault(res, position.moveDown(res, amount));
+    }
+
+    if (input[moveUpKey] && player.state !== 'walking down') {
+        res = newPositionOrDefault(res, position.moveUp(res, amount));
+    }
+
+    if (input[moveRightKey] && player.state !== 'walking left') {
+        res = newPositionOrDefault(res, position.moveRight(res, amount));
+    }
+
+    if (input[moveLeftKey] && player.state !== 'walking right') {
+        res = newPositionOrDefault(res, position.moveLeft(res, amount));
+    }
 
     return res;
 }
