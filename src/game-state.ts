@@ -2,25 +2,24 @@ import type { InputState } from './core';
 import type { Renderer } from './rendering';
 import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
-import type { House } from './house';
+import type { Collider } from './collider';
 import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
-import * as tileBlock from './tile-block';
 import * as collider from './collider';
 
 export interface GameState {
     player: Player;
     map: TileGrid;
-    house: House;
+    colliders: Collider[]
 }
 
-export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, house: House): GameState {
+export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, colliders: Collider[]): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
         map,
-        house
+        colliders
     };
 }
 
@@ -36,7 +35,7 @@ export function update(step: number, input: InputState, gameState: GameState): G
         [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]
     );
 
-    if (collider.isColliding(player.collider(res.player), res.house.collider)) {
+    if (res.colliders.some(collider.isColliding(player.collider(res.player)))) {
         res.player.position = gameState.player.position;
     }
 
@@ -94,7 +93,6 @@ export function render(scale: number, gameState: GameState): Renderer {
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
         tileGrid.render(new DOMMatrix, gameState.map),
-        tileBlock.render(gameState.house),
         player.render(gameState.player)
     ]);
 }

@@ -25,6 +25,20 @@ export function empty(tileSize: number, width: number, height: number): TileGrid
     };
 }
 
+export function fromTileset(tileSize: number, tileset: Sprite[], map: string): TileGrid {
+    const tiles: Tile[] = map
+        .split('\n')
+        .map(row => row.split(',').map(num => parseInt(num)))
+        .flatMap((row, i) => row.map((spriteNum, j) => ({ sprite: tileset[spriteNum], position: [j, i] })));
+
+    return {
+        tileSize,
+        height: map.split('\n').length,
+        width: Math.max(...map.split('\n').map(row => row.split(',').length)),
+        tiles
+    };
+}
+
 export function tile(sprite: Sprite, position: Position): TileGridBuilder;
 export function tile(sprite: Sprite, position: Position, tileGrid: TileGrid): TileGrid;
 export function tile(sprite: Sprite, position: Position, tileGrid?: TileGrid): TileGrid | TileGridBuilder {

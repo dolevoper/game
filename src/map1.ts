@@ -1,37 +1,66 @@
 import type { TileGrid } from './tile-grid';
+import type { Collider } from './collider';
 import { loadImage } from './core';
 import * as sprite from './sprite'
 import * as tileGrid from './tile-grid';
+import * as collider from './collider';
 
 import GrassTileset from './assets/AH_Autotile_Grass.png';
+import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
 
-export async function load(): Promise<TileGrid> {
-    const grassImage = await loadImage(GrassTileset);
+export async function load(): Promise<{ grid: TileGrid, colliders: Collider[] }> {
+    const tileSize = 16;
+    const [grassImage, houseWallImage] = await Promise.all([
+        loadImage(GrassTileset),
+        loadImage(HouseWallTileset)
+    ]);
 
-    const grassCornerTL = sprite.staticSprite(grassImage, 16, 0, 8);
-    const grassCornerTR = sprite.staticSprite(grassImage, 16, 0, 11);
-    const grassCornerBL = sprite.staticSprite(grassImage, 16, 3, 8);
-    const grassCornerBR = sprite.staticSprite(grassImage, 16, 3, 11);
-    const grassEdgeT = sprite.staticSprite(grassImage, 16, 0, 10);
-    const grassEdgeL = sprite.staticSprite(grassImage, 16, 1, 8);
-    const grassEdgeR = sprite.staticSprite(grassImage, 16, 2, 11);
-    const grassEdgeB = sprite.staticSprite(grassImage, 16, 3, 9);
-    const grass = sprite.staticSprite(grassImage, 16, 2, 9);
+    const grid = tileGrid.fromTileset(tileSize, [
+        sprite.staticSprite(grassImage, tileSize, 0, 8),
+        sprite.staticSprite(grassImage, tileSize, 0, 11),
+        sprite.staticSprite(grassImage, tileSize, 3, 8),
+        sprite.staticSprite(grassImage, tileSize, 3, 11),
+        sprite.staticSprite(grassImage, tileSize, 0, 10),
+        sprite.staticSprite(grassImage, tileSize, 1, 8),
+        sprite.staticSprite(grassImage, tileSize, 2, 11),
+        sprite.staticSprite(grassImage, tileSize, 3, 9),
+        sprite.staticSprite(grassImage, tileSize, 2, 9),
+        sprite.staticSprite(houseWallImage, tileSize, 0, 1),
+        sprite.staticSprite(houseWallImage, tileSize, 0, 3),
+        sprite.staticSprite(houseWallImage, tileSize, 2, 1),
+        sprite.staticSprite(houseWallImage, tileSize, 2, 3),
+        sprite.staticSprite(houseWallImage, tileSize, 0, 2),
+        sprite.staticSprite(houseWallImage, tileSize, 1, 1),
+        sprite.staticSprite(houseWallImage, tileSize, 1, 3),
+        sprite.staticSprite(houseWallImage, tileSize, 2, 2),
+        sprite.staticSprite(houseWallImage, tileSize, 1, 2)
+    ], `0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,9,13,13,10,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,14,17,17,15,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,11,16,16,12,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`);
 
-    const gridWidth = 20;
-    const gridHeight = 20;
-
-    const grid = tileGrid.build([
-        tileGrid.tile(grassCornerTL, [0, 0]),
-        tileGrid.tile(grassCornerTR, [gridWidth - 1, 0]),
-        tileGrid.tile(grassCornerBL, [0, gridHeight - 1]),
-        tileGrid.tile(grassCornerBR, [gridWidth - 1, gridHeight - 1]),
-        tileGrid.fill(grassEdgeT, [1, 0], gridWidth - 2, 1),
-        tileGrid.fill(grassEdgeL, [0, 1], 1, gridHeight - 2),
-        tileGrid.fill(grassEdgeR, [gridWidth - 1, 1], 1, gridHeight - 2),
-        tileGrid.fill(grassEdgeB, [1, gridHeight - 1], gridWidth - 2, 1),
-        tileGrid.fill(grass, [1, 1], gridWidth - 2, gridHeight - 2)
-    ], tileGrid.empty(16, gridWidth, gridHeight));
-
-    return grid;
+    return {
+        grid,
+        colliders: [collider.fromRect(
+            [10 * tileSize, 7 * tileSize],
+            4 * tileSize,
+            3 * tileSize - (tileSize / 2)
+        )]
+    };
 }
