@@ -3,16 +3,19 @@ import type { Renderer } from './rendering';
 import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
 import type { Collider } from './collider';
+import type { GameObject } from './game-object';
 import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
+import * as gameObject from './game-object';
 
 export interface GameState {
     player: Player;
     layer1: TileGrid;
     layer2: TileGrid;
-    staticColliders: Collider[]
+    staticColliders: Collider[],
+    gameObjects: GameObject[]
 }
 
 export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, layer2: TileGrid, staticColliders: Collider[]): GameState {
@@ -20,7 +23,15 @@ export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, l
         player: player.fromSprites(playerStateSprites),
         layer1,
         layer2,
-        staticColliders
+        staticColliders,
+        gameObjects: []
+    };
+}
+
+export function addGameObject(newGameObject: GameObject, gameState: GameState): GameState {
+    return {
+        ...gameState,
+        gameObjects: [...gameState.gameObjects, newGameObject]
     };
 }
 
@@ -90,7 +101,11 @@ export function render(scale: number, gameState: GameState): Renderer {
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
         tileGrid.render(new DOMMatrix(), gameState.layer1),
-        player.render(gameState.player),
+        ...gameObjects(gameState).sort((obj1, obj2) => obj1.position[1] - obj2.position[1]).map(gameObject.render),
         tileGrid.render(new DOMMatrix(), gameState.layer2)
     ]);
+}
+
+function gameObjects(gameState: GameState): GameObject[] {
+    return [...gameState.gameObjects, gameState.player];
 }

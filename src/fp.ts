@@ -2,7 +2,7 @@ export type Func<T, U> = (p: T) => U;
 
 type CompositionResult<A, B, C, D, E, F> = Func<A, F> | Func<B, F> | Func<C, F> | Func<D, F> | Func<E, F>;
 
-export default function compose<A, B, C, D, E, F>(f1: Func<E, F>, f2?: Func<D, E>, f3?: Func<C, D>, f4?: Func<B, C>, f5?: Func<A, B>): CompositionResult<A, B, C, D, E, F> {
+export function compose<A, B, C, D, E, F>(f1: Func<E, F>, f2?: Func<D, E>, f3?: Func<C, D>, f4?: Func<B, C>, f5?: Func<A, B>): CompositionResult<A, B, C, D, E, F> {
     if (f5 && f4 && f3 && f2) return compose5(f1, f2, f3, f4, f5);
     if (f4 && f3 && f2) return compose4(f1, f2, f3, f4);
     if (f3 && f2) return compose3(f1, f2, f3);
@@ -26,3 +26,7 @@ function compose4<A, B, C, D, E>(f1: Func<D, E>, f2: Func<C, D>, f3: Func<B, C>,
 function compose5<A, B, C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, D>, f4: Func<B, C>, f5: Func<A, B>): Func<A, F> {
     return (p: A) => f1(f2(f3(f4(f5(p)))));
 }
+
+export function identity<T>(value: T): T { return value; }
+
+export function always<T>(value: T): () => T { return () => value; }

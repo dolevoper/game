@@ -1,12 +1,13 @@
 import type { InputState } from './core';
-import type { Renderer } from './rendering';
 import type { Position } from './position';
 import type { Sprite } from './sprite';
+import type { GameObject } from './game-object';
 import type { Collider } from './collider';
-import compose from './compose';
+import { compose, always } from './fp';
 import * as position from './position';
 import * as sprite from './sprite';
 import * as collider from './collider';
+import * as gameObject from './game-object';
 
 export type PlayerState
     = 'facing down'
@@ -20,10 +21,8 @@ export type PlayerState
 
 export type PlayerStateSprites = { [k in PlayerState]: Sprite };
 
-export interface Player {
+export interface Player extends GameObject {
     state: PlayerState;
-    position: Position;
-    sprite: Sprite;
     stateSprites: PlayerStateSprites;
 }
 
@@ -36,19 +35,14 @@ const moveDownKey = 40;
 
 export function fromSprites(stateSprites: PlayerStateSprites): Player {
     return {
+        ...gameObject.from(stateSprites[defaultState], position.fromScalar(0)),
         state: defaultState,
-        position: position.fromScalar(0),
-        sprite: stateSprites[defaultState],
         stateSprites
     };
 }
 
 export function getCollider(player: Player): Collider {
     return collider.fromRect(player.position, player.sprite.size, player.sprite.size);
-}
-
-export function render(player: Player): Renderer {
-    return sprite.render(new DOMMatrix().translate(...player.position), player.sprite);
 }
 
 export function update(step: number, input: InputState, colliders: Collider[], player: Player): Player {
@@ -69,7 +63,6 @@ function updateState(input: InputState, state: PlayerState): PlayerState {
     const handleMoveRightKey: InputHandler = next => input => input[moveRightKey] ? 'walking right' : next(input);
     const handleMoveDownKey: InputHandler = next => input => input[moveDownKey] ? 'walking down' : next(input);
     const handleMoveUpKey: InputHandler = next => input => input[moveUpKey] ? 'walking up' : next(input);
-    const always: (state: PlayerState) => (input: InputState) => PlayerState = state => _ => state;
 
     const stateUpdates: { [k in PlayerState]?: (i: InputState) => PlayerState } = {
         'walking left': compose(handleMoveLeftKey, handleMoveRightKey, handleMoveDownKey, handleMoveUpKey)(always('facing left')),

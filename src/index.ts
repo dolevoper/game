@@ -2,18 +2,21 @@ import type { InputState } from './core';
 import type { GameState } from './game-state';
 import * as rendering from './rendering';
 import * as gameState from './game-state';
+import * as gameObject from './game-object';
 
 import * as map1 from './map1';
 import * as playerSprites from './player-sprites';
+import * as bushSpriteLoader from './bush-sprite';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
     
     if (!gameCtx) return;
 
-    const [player, { layer1, layer2, colliders }] = await Promise.all([
-        await playerSprites.load(),
-        await map1.load()
+    const [player, { layer1, layer2, colliders }, bushSprite] = await Promise.all([
+        playerSprites.load(),
+        map1.load(),
+        bushSpriteLoader.load()
     ]);
 
     let start = 0;
@@ -24,6 +27,8 @@ async function startGame() {
         layer2,
         colliders
     );
+
+    state = gameState.addGameObject(gameObject.from(bushSprite, [3 * 16, 3 * 16]), state);
 
     document.addEventListener('keydown', function (e) {
         inputState[e.keyCode] = true;
