@@ -11,7 +11,7 @@ async function startGame() {
     
     if (!gameCtx) return;
 
-    const [player, { grid, colliders }] = await Promise.all([
+    const [player, { layer1, layer2, colliders }] = await Promise.all([
         await playerSprites.load(),
         await map1.load()
     ]);
@@ -20,7 +20,8 @@ async function startGame() {
     let inputState: InputState = {};
     let state: GameState = gameState.init(
         player,
-        grid,
+        layer1,
+        layer2,
         colliders
     );
 

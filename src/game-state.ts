@@ -11,14 +11,16 @@ import * as collider from './collider';
 
 export interface GameState {
     player: Player;
-    map: TileGrid;
+    layer1: TileGrid;
+    layer2: TileGrid;
     colliders: Collider[]
 }
 
-export function init(playerStateSprites: PlayerStateSprites, map: TileGrid, colliders: Collider[]): GameState {
+export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, layer2: TileGrid, colliders: Collider[]): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
-        map,
+        layer1,
+        layer2,
         colliders
     };
 }
@@ -32,7 +34,7 @@ export function update(step: number, input: InputState, gameState: GameState): G
     res.player.position = position.clamp(
         [0, 0],
         res.player.position,
-        [tileGrid.renderWidth(res.map) - res.player.sprite.size, tileGrid.renderHeigth(res.map) - res.player.sprite.size]
+        [tileGrid.renderWidth(res.layer1) - res.player.sprite.size, tileGrid.renderHeigth(res.layer1) - res.player.sprite.size]
     );
 
     if (res.colliders.some(collider.isColliding(player.collider(res.player)))) {
@@ -46,8 +48,8 @@ export function render(scale: number, gameState: GameState): Renderer {
     return ctx => {
         const scene = document.createElement('canvas');
 
-        scene.width = tileGrid.renderWidth(gameState.map);
-        scene.height = tileGrid.renderHeigth(gameState.map);
+        scene.width = tileGrid.renderWidth(gameState.layer1);
+        scene.height = tileGrid.renderHeigth(gameState.layer1);
 
         const sceneCtx = scene.getContext('2d');
 
@@ -92,7 +94,8 @@ export function render(scale: number, gameState: GameState): Renderer {
 
 function renderScene(gameState: GameState): Renderer {
     return rendering.combineRenderers([
-        tileGrid.render(new DOMMatrix, gameState.map),
-        player.render(gameState.player)
+        tileGrid.render(new DOMMatrix(), gameState.layer1),
+        player.render(gameState.player),
+        tileGrid.render(new DOMMatrix(), gameState.layer2)
     ]);
 }

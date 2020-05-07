@@ -7,15 +7,17 @@ import * as collider from './collider';
 
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
+import HouseRoofTileset from './assets/AH_Autotile_House_Roof.png';
 
-export async function load(): Promise<{ grid: TileGrid, colliders: Collider[] }> {
+export async function load(): Promise<{ layer1: TileGrid, layer2: TileGrid, colliders: Collider[] }> {
     const tileSize = 16;
-    const [grassImage, houseWallImage] = await Promise.all([
+    const [grassImage, houseWallImage, houseRoofImage] = await Promise.all([
         loadImage(GrassTileset),
-        loadImage(HouseWallTileset)
+        loadImage(HouseWallTileset),
+        loadImage(HouseRoofTileset)
     ]);
 
-    const grid = tileGrid.fromTileset(tileSize, [
+    const layer1 = tileGrid.fromTileset(tileSize, [
         sprite.staticSprite(grassImage, tileSize, 0, 8),
         sprite.staticSprite(grassImage, tileSize, 0, 11),
         sprite.staticSprite(grassImage, tileSize, 3, 8),
@@ -33,14 +35,17 @@ export async function load(): Promise<{ grid: TileGrid, colliders: Collider[] }>
         sprite.staticSprite(houseWallImage, tileSize, 1, 1),
         sprite.staticSprite(houseWallImage, tileSize, 1, 3),
         sprite.staticSprite(houseWallImage, tileSize, 2, 2),
-        sprite.staticSprite(houseWallImage, tileSize, 1, 2)
+        sprite.staticSprite(houseWallImage, tileSize, 1, 2),
+        sprite.staticSprite(houseRoofImage, tileSize, 3, 8),
+        sprite.staticSprite(houseRoofImage, tileSize, 3, 11),
+        sprite.staticSprite(houseRoofImage, tileSize, 3, 9)
     ], `0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
-        5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
+        5,8,8,8,8,8,8,8,8,8,18,20,20,19,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,9,13,13,10,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,14,17,17,15,8,8,8,8,8,6
         5,8,8,8,8,8,8,8,8,8,11,16,16,12,8,8,8,8,8,6
@@ -55,12 +60,19 @@ export async function load(): Promise<{ grid: TileGrid, colliders: Collider[] }>
         5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
         2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`);
 
+    const layer2 = tileGrid.build([
+        tileGrid.tile(sprite.staticSprite(houseRoofImage, tileSize, 0, 8), [10, 5]),
+        tileGrid.fill(sprite.staticSprite(houseRoofImage, tileSize, 0, 9), [11, 5], 2, 1),
+        tileGrid.tile(sprite.staticSprite(houseRoofImage, tileSize, 0, 11), [13, 5])
+    ], tileGrid.empty(tileSize, 20, 20));
+
     return {
-        grid,
+        layer1,
+        layer2,
         colliders: [collider.fromRect(
-            [10 * tileSize, 7 * tileSize],
+            [10 * tileSize, 5 * tileSize + (tileSize / 2)],
             4 * tileSize,
-            3 * tileSize - (tileSize / 2)
+            4 * tileSize
         )]
     };
 }
