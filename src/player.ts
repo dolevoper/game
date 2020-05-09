@@ -1,13 +1,12 @@
 import type { InputState } from './core';
 import type { Position } from './position';
-import type { Sprite } from './sprite';
 import type { GameObject } from './game-object';
 import type { Collider } from './collider';
+import type { StateSprites, MultiState } from './multi-state';
 import { compose, always } from './fp';
 import * as position from './position';
-import * as sprite from './sprite';
 import * as collider from './collider';
-import * as gameObject from './game-object';
+import * as multiState from './multi-state';
 
 export type PlayerState
     = 'facing down'
@@ -19,12 +18,9 @@ export type PlayerState
     | 'walking left'
     | 'walking right';
 
-export type PlayerStateSprites = { [k in PlayerState]: Sprite };
+export type PlayerStateSprites = StateSprites<PlayerState>;
 
-export interface Player extends GameObject {
-    state: PlayerState;
-    stateSprites: PlayerStateSprites;
-}
+export interface Player extends GameObject, MultiState<PlayerState> { }
 
 const defaultState: PlayerState = 'facing down';
 
@@ -35,9 +31,8 @@ const moveDownKey = 40;
 
 export function fromSprites(stateSprites: PlayerStateSprites): Player {
     return {
-        ...gameObject.from(stateSprites[defaultState], position.fromScalar(0)),
-        state: defaultState,
-        stateSprites
+        ...multiState.from(defaultState, stateSprites),
+        position: position.fromScalar(0)
     };
 }
 
@@ -46,36 +41,37 @@ export function getCollider(player: Player): Collider {
 }
 
 export function update(step: number, input: InputState, colliders: Collider[], player: Player): Player {
-    const nextState = updateState(input, player.state);
-
     return {
-        ...player,
-        state: nextState,
+        ...multiState.build([
+            multiState.mapState(updateState(input)),
+            multiState.mapStep(step)
+        ], player),
         position: updatePosition(step, input, colliders, player),
-        sprite: updateSprite(step, nextState, player)
     };
 }
 
 type InputHandler = (next: (input: InputState) => PlayerState) => (input: InputState) => PlayerState;
 
-function updateState(input: InputState, state: PlayerState): PlayerState {
-    const handleMoveLeftKey: InputHandler = next => input => input[moveLeftKey] ? 'walking left' : next(input);
-    const handleMoveRightKey: InputHandler = next => input => input[moveRightKey] ? 'walking right' : next(input);
-    const handleMoveDownKey: InputHandler = next => input => input[moveDownKey] ? 'walking down' : next(input);
-    const handleMoveUpKey: InputHandler = next => input => input[moveUpKey] ? 'walking up' : next(input);
+function updateState(input: InputState): (state: PlayerState) => PlayerState {
+    return state => {
+        const handleMoveLeftKey: InputHandler = next => input => input[moveLeftKey] ? 'walking left' : next(input);
+        const handleMoveRightKey: InputHandler = next => input => input[moveRightKey] ? 'walking right' : next(input);
+        const handleMoveDownKey: InputHandler = next => input => input[moveDownKey] ? 'walking down' : next(input);
+        const handleMoveUpKey: InputHandler = next => input => input[moveUpKey] ? 'walking up' : next(input);
 
-    const stateUpdates: { [k in PlayerState]?: (i: InputState) => PlayerState } = {
-        'walking left': compose(handleMoveLeftKey, handleMoveRightKey, handleMoveDownKey, handleMoveUpKey)(always('facing left')),
-        'walking right': compose(handleMoveRightKey, handleMoveLeftKey, handleMoveDownKey, handleMoveUpKey)(always('facing right')),
-        'walking up': compose(handleMoveUpKey, handleMoveDownKey, handleMoveLeftKey, handleMoveRightKey)(always('facing up')),
-        'walking down': compose(handleMoveDownKey, handleMoveUpKey, handleMoveLeftKey, handleMoveRightKey)(always('facing down'))
+        const stateUpdates: { [k in PlayerState]?: (i: InputState) => PlayerState } = {
+            'walking left': compose(handleMoveLeftKey, handleMoveRightKey, handleMoveDownKey, handleMoveUpKey)(always('facing left')),
+            'walking right': compose(handleMoveRightKey, handleMoveLeftKey, handleMoveDownKey, handleMoveUpKey)(always('facing right')),
+            'walking up': compose(handleMoveUpKey, handleMoveDownKey, handleMoveLeftKey, handleMoveRightKey)(always('facing up')),
+            'walking down': compose(handleMoveDownKey, handleMoveUpKey, handleMoveLeftKey, handleMoveRightKey)(always('facing down'))
+        };
+
+        const defaultHandler = compose(handleMoveDownKey, handleMoveUpKey, handleMoveLeftKey, handleMoveRightKey)(always(state));
+
+        const update = stateUpdates[state] || defaultHandler;
+
+        return update(input);
     };
-
-    const defaultHandler = compose(handleMoveDownKey, handleMoveUpKey, handleMoveLeftKey, handleMoveRightKey)(always(state));
-
-    const update = stateUpdates[state] || defaultHandler;
-
-    return update(input);
 }
 
 function updatePosition(step: number, input: InputState, colliders: Collider[], player: Player): Position {
@@ -108,10 +104,4 @@ function updatePosition(step: number, input: InputState, colliders: Collider[], 
     }
 
     return res;
-}
-
-function updateSprite(step: number, nextState: PlayerState, player: Player): Sprite {
-    if (player.state !== nextState) return player.stateSprites[nextState];
-
-    return sprite.mapStep(step, player.sprite);
 }

@@ -4,27 +4,31 @@ import type { Player, PlayerStateSprites } from './player';
 import type { TileGrid } from './tile-grid';
 import type { Collider } from './collider';
 import type { GameObject } from './game-object';
+import type { Chest, ChestStateSprites } from './chest';
 import * as position from './position';
 import * as rendering from './rendering';
 import * as player from './player';
 import * as tileGrid from './tile-grid';
 import * as gameObject from './game-object';
+import * as chest from './chest';
 
 export interface GameState {
     player: Player;
     layer1: TileGrid;
     layer2: TileGrid;
-    staticColliders: Collider[],
-    gameObjects: GameObject[]
+    staticColliders: Collider[];
+    gameObjects: GameObject[];
+    chest: Chest;
 }
 
-export function init(playerStateSprites: PlayerStateSprites, layer1: TileGrid, layer2: TileGrid, staticColliders: Collider[]): GameState {
+export function init(playerStateSprites: PlayerStateSprites, chestSprites: ChestStateSprites, layer1: TileGrid, layer2: TileGrid, staticColliders: Collider[]): GameState {
     return {
         player: player.fromSprites(playerStateSprites),
         layer1,
         layer2,
         staticColliders,
-        gameObjects: []
+        gameObjects: [],
+        chest: chest.from(chestSprites, [17 * layer1.tileSize, 17 * layer1.tileSize])
     };
 }
 
@@ -51,7 +55,7 @@ export function build(builders: GameStateBuilder[], gameState: GameState): GameS
 export function update(step: number, input: InputState, gameState: GameState): GameState {
     const res = {
         ...gameState,
-        player: player.update(step, input, gameState.staticColliders, gameState.player)
+        player: player.update(step, input, colliders(gameState), gameState.player)
     };
 
     res.player.position = position.clamp(
@@ -120,5 +124,9 @@ function renderScene(gameState: GameState): Renderer {
 }
 
 function gameObjects(gameState: GameState): GameObject[] {
-    return [...gameState.gameObjects, gameState.player];
+    return [...gameState.gameObjects, gameState.player, gameState.chest];
+}
+
+function colliders(gameState: GameState): Collider[] {
+    return [...gameState.staticColliders, chest.getCollider(gameState.chest)];
 }

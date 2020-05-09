@@ -7,16 +7,18 @@ import * as gameObject from './game-object';
 import * as map1 from './map1';
 import * as playerSprites from './player-sprites';
 import * as bushSpriteLoader from './bush-sprite';
+import * as chestSpritesLoader from './chest-sprites';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
     
     if (!gameCtx) return;
 
-    const [player, { layer1, layer2, colliders }, bushSprite] = await Promise.all([
+    const [player, { layer1, layer2, colliders }, bushSprite, chestSprites] = await Promise.all([
         playerSprites.load(),
         map1.load(),
-        bushSpriteLoader.load()
+        bushSpriteLoader.load(),
+        chestSpritesLoader.load()
     ]);
 
     let start = 0;
@@ -33,6 +35,7 @@ async function startGame() {
         gameState.addGameObject(gameObject.from(bushSprite, [14 * 16, 14 * 16]))
     ], gameState.init(
         player,
+        chestSprites,
         layer1,
         layer2,
         colliders
