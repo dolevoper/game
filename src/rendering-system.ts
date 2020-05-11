@@ -15,20 +15,20 @@ interface SpriteData {
     height: number;
 }
 
-interface PositionedSpriteData extends SpriteData {
-    position: Position;
-}
-
 interface Sprite extends SpriteData {
     kind: 'sprite';
     layer: number;
     transform: DOMMatrix;
 }
 
+interface Tile extends SpriteData {
+    position: Position;
+}
+
 interface TileGrid {
     kind: 'tileGrid',
     tileSize: number;
-    tiles: PositionedSpriteData[];
+    tiles: Tile[];
     layer: number;
     transform: DOMMatrix;
 }
@@ -57,10 +57,17 @@ export function sprite(entityId: number, layer: number, spriteData: SpriteData):
 }
 
 export function fromTileset(entityId: number, tileSize: number, layer: number, tileset: SpriteData[], map: string): RenderComponent {
-    const tiles: PositionedSpriteData[] = map
+    const tiles: Tile[] = map
         .split('\n')
-        .map(row => row.split(',').map(num => parseInt(num)))
-        .flatMap((row, i) => row.map((spriteNum, j) => ({ ...tileset[spriteNum], position: [j, i] })));
+        .map(row => row.split(',').map(num => num === '' ? undefined : parseInt(num)))
+        .flatMap<Tile>((row, i) => {
+            const tiles: (Tile | false)[] = row.map((spriteNum, j) => spriteNum !== undefined && { ...tileset[spriteNum], position: [j, i] });
+
+            return tiles.reduce<Tile[]>(
+                (res, tile) => tile ? [...res, tile] : res,
+                []
+            );
+        });
 
     return {
         componentType: 'render',
@@ -140,7 +147,7 @@ export function render(): State<EntitySystem, HTMLCanvasElement> {
     });
 }
 
-function renderTile(ctx: CanvasRenderingContext2D, tileSize: number, sprite: PositionedSpriteData) {
+function renderTile(ctx: CanvasRenderingContext2D, tileSize: number, sprite: Tile) {
     renderSpriteData(ctx, {
         ...sprite,
         x: sprite.x * tileSize,

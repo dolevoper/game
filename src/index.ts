@@ -79,7 +79,12 @@ async function startGame() {
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
-            2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`))
+            2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`)),
+        entitySystem.addComponent(renderingSystem.fromTileset(1, 16, 2, [
+            { image: houseRoofImage, height: 16, width: 16, x: 8, y: 0},
+            { image: houseRoofImage, height: 16, width: 16, x: 9, y: 0},
+            { image: houseRoofImage, height: 16, width: 16, x: 11, y: 0}
+        ], `\n\n\n\n\n,,,,,,,,,,0,1,1,2`))
     ], entitySystem.empty());
 
     const gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
