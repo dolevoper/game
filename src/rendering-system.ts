@@ -3,6 +3,7 @@ import type { State } from './state';
 import type { Position } from './position';
 import * as state from './state';
 import * as position from './position';
+import { EntitySystem } from './entity-system';
 
 interface SpriteData {
     image: CanvasImageSource;
@@ -18,32 +19,39 @@ interface Sprite extends SpriteData {
 
 interface SpriteComponent extends Sprite {
     kind: 'sprite';
-    entityId: number;
     layer: number;
     transform: DOMMatrix;
 }
 
 interface TileGridComponent {
     kind: 'tile grid',
-    entityId: number;
     tileSize: number;
     tiles: Sprite[];
     layer: number;
     transform: DOMMatrix;
 }
 
-export type RenderComponent = SpriteComponent | TileGridComponent;
+type Renderable = SpriteComponent | TileGridComponent;
+
+export interface RenderComponent {
+    componentType: 'render';
+    entityId: number;
+    renderable: Renderable;
+}
 
 export type HasRenderComponents = { renderComponents: RenderComponent[] };
 
 export function sprite(entityId: number, position: Position, layer: number, spriteData: SpriteData): RenderComponent {
     return {
-        kind: 'sprite',
-        ...spriteData,
+        componentType: 'render',
         entityId,
-        position,
-        layer,
-        transform: new DOMMatrix()
+        renderable: {
+            kind: 'sprite',
+            ...spriteData,
+            position,
+            layer,
+            transform: new DOMMatrix()
+        }
     };
 }
 
@@ -54,12 +62,15 @@ export function fromTileset(entityId: number, tileSize: number, layer: number, t
         .flatMap((row, i) => row.map((spriteNum, j) => ({ ...tileset[spriteNum], position: [j, i] })));
 
     return {
-        kind: 'tile grid',
+        componentType: 'render',
         entityId,
-        tileSize,
-        tiles,
-        layer,
-        transform: new DOMMatrix()
+        renderable: {
+            kind: 'tile grid',
+            tileSize,
+            tiles,
+            layer,
+            transform: new DOMMatrix()
+        }
     };
 }
 
@@ -68,44 +79,42 @@ type RenderComponentMatchers<T> = { sprite: Func<SpriteComponent, T>, tileGrid: 
 function match<T>(matchers: RenderComponentMatchers<T>): Func<RenderComponent, T>;
 function match<T>(matchers: RenderComponentMatchers<T>, component: RenderComponent): T;
 function match<T>(matchers: RenderComponentMatchers<T>, component?: RenderComponent): T | Func<RenderComponent, T> {
-    const exec: Func<RenderComponent, T> = component => {
-        switch (component.kind) {
-            case 'sprite': return matchers.sprite(component);
-            case 'tile grid': return matchers.tileGrid(component);
+    const exec: Func<RenderComponent, T> = ({ renderable }) => {
+        switch (renderable.kind) {
+            case 'sprite': return matchers.sprite(renderable);
+            case 'tile grid': return matchers.tileGrid(renderable);
         }
     };
 
     return component ? exec(component) : exec;
 }
 
-export function render(ctx: CanvasRenderingContext2D): State<HasRenderComponents, void> {
-    return state.flatMap(s => {
+export function render(ctx: CanvasRenderingContext2D): State<EntitySystem, void> {
+    return state.map(entitySystem => {
         const renderer = match({ sprite: renderSpriteComponent(ctx), tileGrid: renderTileGridComponent(ctx) });
 
-        s.renderComponents
-            .sort((component1, component2) => {
-                if (component1.layer === component2.layer) {
-                    if (component1.kind === 'sprite' && component2.kind === 'sprite') return component1.position[1] - component2.position[1];
+        entitySystem.components.render
+            .sort(({ renderable: renderable1 }, { renderable: renderable2 }) => {
+                if (renderable1.layer === renderable2.layer) {
+                    if (renderable1.kind === 'sprite' && renderable2.kind === 'sprite') return renderable1.position[1] - renderable2.position[1];
 
                     return 0;
                 }
 
-                return component1.layer - component2.layer;
+                return renderable1.layer - renderable2.layer;
             })
             .forEach(component => {
                 const globalTransform = ctx.getTransform();
-                const { a, b, c, d, e, f } = component.transform;
+                const { a, b, c, d, e, f } = component.renderable.transform;
 
                 ctx.transform(a, b, c, d, e, f);
                 renderer(component);
                 ctx.setTransform(globalTransform);
             });
-
-        return state.put(s);
     }, state.get());
 }
 
-type Renderer<T extends RenderComponent> = (component: T) => void;
+type Renderer<T extends Renderable> = (component: T) => void;
 
 function renderSpriteComponent(ctx: CanvasRenderingContext2D): Renderer<SpriteComponent>;
 function renderSpriteComponent(ctx: CanvasRenderingContext2D, sprite: SpriteComponent): void;

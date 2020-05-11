@@ -1,7 +1,8 @@
 import type { InputState } from './core';
-import type { RenderComponent, HasRenderComponents } from './rendering-system';
+import type { EntitySystem } from './entity-system';
 import { loadImage } from './core';
 import * as state from './state';
+import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
 
 import PeoplesImage from './assets/AH_SpriteSheet_People1.png';
@@ -23,15 +24,16 @@ async function startGame() {
         loadImage(HouseRoofTileset)
     ]);
     const tileSize = 16;
-    const renderComponents: RenderComponent[] = [
-        renderingSystem.sprite(0, [0, 0], 1, {
+
+    const es: EntitySystem = entitySystem.build([
+        entitySystem.addComponent(renderingSystem.sprite(0, [0, 0], 1, {
             image: spriteImage,
             width: 16,
             height: 16,
             x: 0,
             y: 0
-        }),
-        renderingSystem.fromTileset(1, tileSize, 0, [
+        })),
+        entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 8, y: 3, width: tileSize, height: tileSize },
@@ -72,10 +74,8 @@ async function startGame() {
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
-            2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`)
-    ];
-
-    let initialState: HasRenderComponents = { renderComponents };
+            2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`))
+    ], entitySystem.empty());
 
     document.addEventListener('keydown', function (e) {
         inputState[e.keyCode] = true;
@@ -85,15 +85,15 @@ async function startGame() {
         delete inputState[e.keyCode];
     });
 
-    const _gameLoop = (prevTimeStamp: number, gameState: HasRenderComponents) => (timestamp: number) => {
+    const _gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
         const step = timestamp - prevTimeStamp;
 
-        const newState = state.execState(gameState, renderingSystem.render(gameCtx));
+        const newState = state.execState(es, renderingSystem.render(gameCtx));
         
         requestAnimationFrame(_gameLoop(timestamp, newState));
     };
 
-    requestAnimationFrame(_gameLoop(0, initialState));
+    requestAnimationFrame(_gameLoop(0, es));
 }
 
 startGame();

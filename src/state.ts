@@ -1,4 +1,4 @@
-import { Func, compose } from './fp';
+import type { Func } from './fp';
 
 export interface State<T, U> {
     run(state: T): [U, T];
@@ -12,9 +12,15 @@ export function pure<T, U>(value: U): State<T, U> {
     }
 }
 
-export function get<T>(): State<T, T> {
-    return {
-        run(state: T) {
+export function get<T, U>(): State<T, T>;
+export function get<T, U>(fn: Func<T, U>): State<T, U>;
+export function get<T, U>(fn?: Func<T, U>): State<T, T> | State<T, U> {
+    return fn ? {
+        run(state) {
+            return [fn(state), state];
+        }
+    } : {
+        run(state) {
             return [state, state];
         }
     };
