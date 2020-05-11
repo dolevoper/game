@@ -1,4 +1,3 @@
-import type { InputState } from './core';
 import type { EntitySystem } from './entity-system';
 import { compose } from './fp';
 import { loadImage } from './core';
@@ -6,6 +5,7 @@ import * as state from './state';
 import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
 import * as cameraSystem from './camera-system';
+import * as inputSystem from './input-system';
 import * as positionComponent from './position-component';
 import * as movementSystem from './movement-system';
 
@@ -18,8 +18,6 @@ async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
 
     if (!gameCtx) return;
-
-    let inputState: InputState = {};
 
     const [grassImage, houseWallImage, spriteImage, houseRoofImage] = await Promise.all([
         loadImage(GrassTileset),
@@ -38,7 +36,7 @@ async function startGame() {
             y: 0
         })),
         entitySystem.addComponent(positionComponent.from(0, [16, 16])),
-        entitySystem.addComponent(movementSystem.from(0, 0, 32)),
+        entitySystem.addComponent(movementSystem.from(0, 0, 0)),
         entitySystem.addComponent(cameraSystem.from(0, [8, 8])),
         entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
@@ -84,21 +82,14 @@ async function startGame() {
             2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`))
     ], entitySystem.empty());
 
-    document.addEventListener('keydown', function (e) {
-        inputState[e.keyCode] = true;
-    });
-
-    document.addEventListener('keyup', function (e) {
-        delete inputState[e.keyCode];
-    });
-
     const gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
         const step = timestamp - prevTimeStamp;
 
         const pipeline = compose(
             state.flatMap(cameraSystem.render(gameCtx, 3)),
             state.flatMap(renderingSystem.render),
-            state.flatMap(movementSystem.update)
+            state.flatMap(movementSystem.update),
+            state.flatMap(inputSystem.update)
         );
         const s = pipeline(state.pure(step));
 
