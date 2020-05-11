@@ -97,13 +97,9 @@ function match<T>(matchers: RenderableMatchers<T>, renderable?: Renderable): T |
     return renderable ? exec(renderable) : exec;
 }
 
-export function render(): State<EntitySystem, HTMLCanvasElement> {
+export function render(): State<EntitySystem, OffscreenCanvas> {
     return state.get(es => {
-        const sceneCanvas = document.createElement('canvas');
-
-        sceneCanvas.width = 0;
-        sceneCanvas.height = 0;
-        
+        const sceneCanvas = new OffscreenCanvas(0, 0);
         const sceneCtx = sceneCanvas.getContext('2d');
 
         if (!sceneCtx) return sceneCanvas;
@@ -130,9 +126,9 @@ export function render(): State<EntitySystem, HTMLCanvasElement> {
                 return [renderable, pos];
             })
             .forEach(([renderable, pos]) => {
-                const globalTransform = sceneCtx.getTransform();
                 const { a, b, c, d, e, f } = renderable.transform;
 
+                sceneCtx.save();
                 sceneCtx.transform(a, b, c, d, e, f);
 
                 match({
@@ -140,14 +136,14 @@ export function render(): State<EntitySystem, HTMLCanvasElement> {
                     tileGrid: tg => tg.tiles.forEach(tile => renderTile(sceneCtx, tg.tileSize, tile))
                 }, renderable);
 
-                sceneCtx.setTransform(globalTransform);
+                sceneCtx.restore();
             });
 
         return sceneCanvas;
     });
 }
 
-function renderTile(ctx: CanvasRenderingContext2D, tileSize: number, sprite: Tile) {
+function renderTile(ctx: OffscreenCanvasRenderingContext2D, tileSize: number, sprite: Tile) {
     renderSpriteData(ctx, {
         ...sprite,
         x: sprite.x * tileSize,
@@ -155,15 +151,15 @@ function renderTile(ctx: CanvasRenderingContext2D, tileSize: number, sprite: Til
     }, position.scale(tileSize, sprite.position));
 }
 
-function renderSpriteData(ctx: CanvasRenderingContext2D, spriteData: SpriteData, position: Position): void {
+function renderSpriteData(ctx: OffscreenCanvasRenderingContext2D, spriteData: SpriteData, pos: Position): void {
     ctx.drawImage(
         spriteData.image,
         spriteData.x,
         spriteData.y,
         spriteData.width,
         spriteData.height,
-        position[0],
-        position[1],
+        pos[0] | 0,
+        pos[1] | 0,
         spriteData.width,
         spriteData.height
     );

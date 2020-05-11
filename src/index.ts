@@ -15,9 +15,11 @@ import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
 import HouseRoofTileset from './assets/AH_Autotile_House_Roof.png';
 
 async function startGame() {
-    const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
+    const gameCtx = (document.getElementById('app') as HTMLCanvasElement).transferControlToOffscreen().getContext('2d');
 
     if (!gameCtx) return;
+
+    gameCtx.imageSmoothingEnabled = false;
 
     const [grassImage, houseWallImage, spriteImage, houseRoofImage] = await Promise.all([
         loadImage(GrassTileset),

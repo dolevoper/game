@@ -23,7 +23,7 @@ export function from(entityId: number, offset: Position = [0, 0]): CameraFocusCo
     };
 }
 
-export function render(viewPortCtx: CanvasRenderingContext2D, scale: number = 1): Func<HTMLCanvasElement, State<EntitySystem, void>> {
+export function render(viewPortCtx: OffscreenCanvasRenderingContext2D, scale: number = 1): Func<OffscreenCanvas, State<EntitySystem, void>> {
     return sceneCanvas => state.get(es => {
         const cameraFocusComponents = entitySystem.components('cameraFocus', es);
         const cameraFocus: Maybe<CameraFocusComponent> = cameraFocusComponents.length ? maybe.just(cameraFocusComponents[0]) : maybe.nothing();
