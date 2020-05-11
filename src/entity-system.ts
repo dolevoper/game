@@ -1,19 +1,31 @@
-import type { Func } from './fp';
+import type { Func, SumType } from './fp';
+import type { Maybe } from './maybe';
 import type { ComponentType, Component } from './component';
+import * as maybe from './maybe';
 
-type DiscriminatedUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V> ? T : never;
+type Entity = { [K in ComponentType]: Maybe<number> };
 
 export interface EntitySystem {
-    components: { [K in ComponentType]: DiscriminatedUnion<Component, 'componentType', K>[] };
+    entities: { [id: number]: Entity };
+    components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] };
 }
 
 export function empty(): EntitySystem {
     return {
+        entities: {},
         components: {
             render: [],
             position: []
         }
     };
+}
+
+export function components<K extends ComponentType>(componentType: K, entitySystem: EntitySystem): SumType<Component, 'componentType', K>[] {
+    return entitySystem.components[componentType] as SumType<Component, 'componentType', K>[];
+}
+
+export function component<K extends ComponentType>(entityId: number, componentType: K, entitySystem: EntitySystem): Maybe<SumType<Component, 'componentType', K>> {
+    return maybe.map(componentId => components(componentType, entitySystem)[componentId], entitySystem.entities[entityId][componentType]);
 }
 
 type EntitySystemBuilder = Func<EntitySystem, EntitySystem>;
@@ -22,6 +34,13 @@ export function addComponent(component: Component): EntitySystemBuilder;
 export function addComponent(component: Component, entitySystem: EntitySystem): EntitySystem;
 export function addComponent(component: Component, entitySystem?: EntitySystem): EntitySystem | EntitySystemBuilder {
     const build: EntitySystemBuilder = entitySystem => ({
+        entities: {
+            ...entitySystem.entities,
+            [component.entityId]: {
+                ...entitySystem.entities[component.entityId],
+                [component.componentType]: maybe.just(entitySystem.components[component.componentType].length)
+            }
+        },
         components: {
             ...entitySystem.components,
             [component.componentType]: [...entitySystem.components[component.componentType], component]

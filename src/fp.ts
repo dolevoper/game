@@ -1,4 +1,5 @@
 export type Func<T, U> = (p: T) => U;
+export type SumType<T, K extends keyof T, V extends T[K]> = T extends Record<K, V> ? T : never;
 
 type CompositionResult<A, B, C, D, E, F> = Func<A, F> | Func<B, F> | Func<C, F> | Func<D, F> | Func<E, F>;
 

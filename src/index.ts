@@ -2,6 +2,7 @@ import type { InputState } from './core';
 import type { EntitySystem } from './entity-system';
 import { loadImage } from './core';
 import * as state from './state';
+import * as positionComponent from './position-component';
 import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
 
@@ -26,13 +27,14 @@ async function startGame() {
     const tileSize = 16;
 
     const es: EntitySystem = entitySystem.build([
-        entitySystem.addComponent(renderingSystem.sprite(0, [0, 0], 1, {
+        entitySystem.addComponent(renderingSystem.sprite(0, 1, {
             image: spriteImage,
             width: 16,
             height: 16,
             x: 0,
             y: 0
         })),
+        entitySystem.addComponent(positionComponent.from(0, [16, 16])),
         entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },
