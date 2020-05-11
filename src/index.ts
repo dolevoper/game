@@ -2,14 +2,16 @@ import type { InputState } from './core';
 import type { EntitySystem } from './entity-system';
 import { loadImage } from './core';
 import * as state from './state';
-import * as positionComponent from './position-component';
 import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
+import * as positionComponent from './position-component';
+import * as movementSystem from './movement-system';
 
 import PeoplesImage from './assets/AH_SpriteSheet_People1.png';
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
 import HouseRoofTileset from './assets/AH_Autotile_House_Roof.png';
+import { compose } from './fp';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
@@ -35,6 +37,7 @@ async function startGame() {
             y: 0
         })),
         entitySystem.addComponent(positionComponent.from(0, [16, 16])),
+        entitySystem.addComponent(movementSystem.from(0, 32, 0)),
         entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },
@@ -87,15 +90,21 @@ async function startGame() {
         delete inputState[e.keyCode];
     });
 
-    const _gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
+    const gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
         const step = timestamp - prevTimeStamp;
 
-        const newState = state.execState(es, renderingSystem.render(gameCtx));
+        const pipeline = compose(
+            state.flatMap(renderingSystem.render(gameCtx)),
+            state.flatMap(movementSystem.update(step))
+        );
+        const s = pipeline(state.pure(undefined));
+
+        const newState = state.execState(es, s);
         
-        requestAnimationFrame(_gameLoop(timestamp, newState));
+        requestAnimationFrame(gameLoop(timestamp, newState));
     };
 
-    requestAnimationFrame(_gameLoop(0, es));
+    requestAnimationFrame(gameLoop(0, es));
 }
 
 startGame();

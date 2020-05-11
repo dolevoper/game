@@ -15,7 +15,8 @@ export function empty(): EntitySystem {
         entities: {},
         components: {
             render: [],
-            position: []
+            position: [],
+            movement: []
         }
     };
 }
@@ -48,6 +49,18 @@ export function addComponent(component: Component, entitySystem?: EntitySystem):
     });
 
     return entitySystem ? build(entitySystem): build;
+}
+
+export function updateComponent<K extends ComponentType>(oldComponent: SumType<Component, 'componentType', K>, newComponent: SumType<Component, 'componentType', K>, entitySystem: EntitySystem): EntitySystem {
+    return {
+        ...entitySystem,
+        components: {
+            ...entitySystem.components,
+            [oldComponent.componentType]: components(oldComponent.componentType, entitySystem).map(
+                currComponent => currComponent === oldComponent ? newComponent : currComponent
+            )
+        }
+    };
 }
 
 export function build(builders: EntitySystemBuilder[], entitySystem: EntitySystem): EntitySystem {

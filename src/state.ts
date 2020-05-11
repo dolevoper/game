@@ -34,6 +34,10 @@ export function put<T>(newState: T): State<T, void> {
     };
 }
 
+export function modify<T>(fn: Func<T, T>): State<T, void> {
+    return flatMap(s => put(fn(s)), get());
+}
+
 export function map<T, U, V>(fn: Func<U, V>): Func<State<T, U>, State<T, V>>;
 export function map<T, U, V>(fn: Func<U, V>, m: State<T, U>): State<T, V>;
 export function map<T, U, V>(fn: Func<U, V>, m?: State<T, U>): State<T, V> | Func<State<T, U>, State<T, V>> {

@@ -90,37 +90,36 @@ function match<T>(matchers: RenderableMatchers<T>, renderable?: Renderable): T |
     return renderable ? exec(renderable) : exec;
 }
 
-export function render(ctx: CanvasRenderingContext2D): State<EntitySystem, void> {
-    return state.map(es => {
-        entitySystem.components('render', es)
-            .map((renderComponent): [Renderable, Position] => {
-                const maybePositionComponent = entitySystem.component(renderComponent.entityId, 'position', es);
-                const maybePosition = maybe.map(positionComponent => positionComponent.position, maybePositionComponent);
+export function render(ctx: CanvasRenderingContext2D): Func<void, State<EntitySystem, void>> {
+    return () => state.get(es => entitySystem.components('render', es)
+        .map((renderComponent): [Renderable, Position] => {
+            const maybePositionComponent = entitySystem.component(renderComponent.entityId, 'position', es);
+            const maybePosition = maybe.map(positionComponent => positionComponent.position, maybePositionComponent);
 
-                return [
-                    renderComponent.renderable,
-                    maybe.withDefault([0, 0], maybePosition)
-                ];
-            })
-            .sort(([renderable1, position1], [renderable2, position2]) => {
-                if (renderable1.layer === renderable2.layer) return position1[1] - position2[1];
+            return [
+                renderComponent.renderable,
+                maybe.withDefault([0, 0], maybePosition)
+            ];
+        })
+        .sort(([renderable1, position1], [renderable2, position2]) => {
+            if (renderable1.layer === renderable2.layer) return position1[1] - position2[1];
 
-                return renderable1.layer - renderable2.layer;
-            })
-            .forEach(([renderable, pos]) => {
-                const globalTransform = ctx.getTransform();
-                const { a, b, c, d, e, f } = renderable.transform;
+            return renderable1.layer - renderable2.layer;
+        })
+        .forEach(([renderable, pos]) => {
+            const globalTransform = ctx.getTransform();
+            const { a, b, c, d, e, f } = renderable.transform;
 
-                ctx.transform(a, b, c, d, e, f);
+            ctx.transform(a, b, c, d, e, f);
 
-                match({
-                    sprite: s => renderSpriteData(ctx, s, pos),
-                    tileGrid: tg => tg.tiles.forEach(tile => renderTile(ctx, tg.tileSize, tile))
-                }, renderable);
-                
-                ctx.setTransform(globalTransform);
-            });
-    }, state.get());
+            match({
+                sprite: s => renderSpriteData(ctx, s, pos),
+                tileGrid: tg => tg.tiles.forEach(tile => renderTile(ctx, tg.tileSize, tile))
+            }, renderable);
+
+            ctx.setTransform(globalTransform);
+        })
+    );
 }
 
 function renderTile(ctx: CanvasRenderingContext2D, tileSize: number, sprite: PositionedSpriteData) {
