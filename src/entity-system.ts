@@ -16,7 +16,8 @@ export function empty(): EntitySystem {
         components: {
             render: [],
             position: [],
-            movement: []
+            movement: [],
+            cameraFocus: []
         }
     };
 }

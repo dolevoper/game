@@ -3,6 +3,11 @@ export type SumType<T, K extends keyof T, V extends T[K]> = T extends Record<K, 
 
 type CompositionResult<A, B, C, D, E, F> = Func<A, F> | Func<B, F> | Func<C, F> | Func<D, F> | Func<E, F>;
 
+export function compose<E, F>(f1: Func<E, F>): Func<E, F>;
+export function compose<D, E, F>(f1: Func<E, F>, f2: Func<D, E>): Func<D, F>;
+export function compose<C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, D>): Func<C, F>;
+export function compose<B, C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, D>, f4: Func<B, C>): Func<B, F>;
+export function compose<A, B, C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, D>, f4: Func<B, C>, f5: Func<A, B>): Func<A, F>;
 export function compose<A, B, C, D, E, F>(f1: Func<E, F>, f2?: Func<D, E>, f3?: Func<C, D>, f4?: Func<B, C>, f5?: Func<A, B>): CompositionResult<A, B, C, D, E, F> {
     if (f5 && f4 && f3 && f2) return compose5(f1, f2, f3, f4, f5);
     if (f4 && f3 && f2) return compose4(f1, f2, f3, f4);

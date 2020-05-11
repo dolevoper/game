@@ -1,9 +1,11 @@
 import type { InputState } from './core';
 import type { EntitySystem } from './entity-system';
+import { compose } from './fp';
 import { loadImage } from './core';
 import * as state from './state';
 import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
+import * as cameraSystem from './camera-system';
 import * as positionComponent from './position-component';
 import * as movementSystem from './movement-system';
 
@@ -11,7 +13,6 @@ import PeoplesImage from './assets/AH_SpriteSheet_People1.png';
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
 import HouseRoofTileset from './assets/AH_Autotile_House_Roof.png';
-import { compose } from './fp';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).getContext('2d');
@@ -38,6 +39,7 @@ async function startGame() {
         })),
         entitySystem.addComponent(positionComponent.from(0, [16, 16])),
         entitySystem.addComponent(movementSystem.from(0, 32, 0)),
+        entitySystem.addComponent(cameraSystem.from(0)),
         entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },
@@ -94,10 +96,11 @@ async function startGame() {
         const step = timestamp - prevTimeStamp;
 
         const pipeline = compose(
-            state.flatMap(renderingSystem.render(gameCtx)),
-            state.flatMap(movementSystem.update(step))
+            state.flatMap(cameraSystem.render(gameCtx)),
+            state.flatMap(renderingSystem.render),
+            state.flatMap(movementSystem.update)
         );
-        const s = pipeline(state.pure(undefined));
+        const s = pipeline(state.pure(step));
 
         const newState = state.execState(es, s);
         

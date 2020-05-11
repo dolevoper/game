@@ -1,4 +1,4 @@
-import { Func, always } from './fp';
+import { always } from './fp';
 import type { State } from './state';
 import type { EntitySystem } from './entity-system';
 import * as maybe from './maybe';
@@ -23,8 +23,8 @@ export function from(entityId: number, xSpeed: number, ySpeed: number): Movement
     };
 }
 
-export function update(step: number): Func<void, State<EntitySystem, void>> {
-    return () => state.modify(es => {
+export function update(step: number): State<EntitySystem, void> {
+    return state.modify(es => {
         return entitySystem
             .components('movement', es)
             .reduce(

@@ -1,4 +1,4 @@
-import type { Func } from './fp';
+import { Func, compose } from './fp';
 
 export interface State<T, U> {
     run(state: T): [U, T];
@@ -65,7 +65,7 @@ export function flat<T, U>(m: State<T, State<T, U>>): State<T, U> {
 export function flatMap<T, U, V>(fn: Func<U, State<T, V>>): Func<State<T, U>, State<T, V>>;
 export function flatMap<T, U, V>(fn: Func<U, State<T, V>>, m: State<T, U>): State<T, V>;
 export function flatMap<T, U, V>(fn: Func<U, State<T, V>>, m?: State<T, U>): State<T, V> | Func<State<T, U>, State<T, V>> {
-    const run: Func<State<T, U>, State<T, V>> = m => flat(map(fn, m));
+    const run: Func<State<T, U>, State<T, V>> = compose(flat, map(fn));
 
     return m ? run(m) : run;
 }
