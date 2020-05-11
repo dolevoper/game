@@ -38,8 +38,8 @@ async function startGame() {
             y: 0
         })),
         entitySystem.addComponent(positionComponent.from(0, [16, 16])),
-        entitySystem.addComponent(movementSystem.from(0, 32, 0)),
-        entitySystem.addComponent(cameraSystem.from(0)),
+        entitySystem.addComponent(movementSystem.from(0, 0, 32)),
+        entitySystem.addComponent(cameraSystem.from(0, [8, 8])),
         entitySystem.addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },

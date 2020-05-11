@@ -12,12 +12,14 @@ import * as entitySystem from './entity-system';
 export interface CameraFocusComponent {
     componentType: 'cameraFocus';
     entityId: number;
+    offset: Position;
 }
 
-export function from(entityId: number): CameraFocusComponent {
+export function from(entityId: number, offset: Position = [0, 0]): CameraFocusComponent {
     return {
         componentType: 'cameraFocus',
-        entityId
+        entityId,
+        offset
     };
 }
 
@@ -25,7 +27,12 @@ export function render(viewPortCtx: CanvasRenderingContext2D, scale: number = 1)
     return sceneCanvas => state.get(es => {
         const cameraFocusComponents = entitySystem.components('cameraFocus', es);
         const cameraFocus: Maybe<CameraFocusComponent> = cameraFocusComponents.length ? maybe.just(cameraFocusComponents[0]) : maybe.nothing();
+        const offset = compose(
+            maybe.withDefault<Position>([0, 0]),
+            maybe.map((cameraFocusComponent: CameraFocusComponent) => cameraFocusComponent.offset)
+        )(cameraFocus);
         const focusPosition = compose(
+            position.add(offset),
             maybe.withDefault<Position>([0, 0]),
             maybe.map((positionComponent: PositionComponent) => positionComponent.position),
             maybe.flatMap((cameraFocusComponent: CameraFocusComponent) => entitySystem.component(cameraFocusComponent.entityId, 'position', es))
@@ -39,10 +46,7 @@ export function render(viewPortCtx: CanvasRenderingContext2D, scale: number = 1)
 
         const [sourceX, sourceY] = position.clamp(
             position.fromScalar(0),
-            position.build([
-                position.add(position.fromScalar(0 / -2)),
-                position.add([sourceWidth / -2, sourceHeight / -2])
-            ], focusPosition),
+            position.add([sourceWidth / -2, sourceHeight / -2], focusPosition),
             [sceneCanvas.width - sourceWidth, sceneCanvas.height - sourceHeight]
         );
 
