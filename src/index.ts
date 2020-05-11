@@ -96,7 +96,7 @@ async function startGame() {
         const step = timestamp - prevTimeStamp;
 
         const pipeline = compose(
-            state.flatMap(cameraSystem.render(gameCtx)),
+            state.flatMap(cameraSystem.render(gameCtx, 3)),
             state.flatMap(renderingSystem.render),
             state.flatMap(movementSystem.update)
         );

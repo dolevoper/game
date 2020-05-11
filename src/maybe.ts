@@ -59,3 +59,14 @@ export function map<T, U>(projection: Func<T, U>, maybe?: Maybe<T>): Maybe<U> | 
 
     return maybe ? resolve(maybe) : resolve;
 }
+
+export function flatMap<T, U>(fn: Func<T, Maybe<U>>): MaybeResolver<T, Maybe<U>>;
+export function flatMap<T, U>(fn: Func<T, Maybe<U>>, maybe: Maybe<T>): Maybe<U>;
+export function flatMap<T, U>(fn: Func<T, Maybe<U>>, maybe?: Maybe<T>): Maybe<U> | MaybeResolver<T, Maybe<U>> {
+    const resolve: MaybeResolver<T, Maybe<U>> = maybe => match({
+        just: value => fn(value),
+        nothing: always(nothing())
+    }, maybe);
+
+    return maybe ? resolve(maybe) : resolve;
+}

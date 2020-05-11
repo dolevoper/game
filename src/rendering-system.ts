@@ -93,6 +93,10 @@ function match<T>(matchers: RenderableMatchers<T>, renderable?: Renderable): T |
 export function render(): State<EntitySystem, HTMLCanvasElement> {
     return state.get(es => {
         const sceneCanvas = document.createElement('canvas');
+
+        sceneCanvas.width = 0;
+        sceneCanvas.height = 0;
+        
         const sceneCtx = sceneCanvas.getContext('2d');
 
         if (!sceneCtx) return sceneCanvas;
@@ -111,6 +115,12 @@ export function render(): State<EntitySystem, HTMLCanvasElement> {
                 if (renderable1.layer === renderable2.layer) return position1[1] - position2[1];
 
                 return renderable1.layer - renderable2.layer;
+            })
+            .map(([renderable, pos]): [Renderable, Position] => {
+                sceneCanvas.width = Math.max(sceneCanvas.width, pos[0] + width(renderable));
+                sceneCanvas.height = Math.max(sceneCanvas.height, pos[1] + height(renderable));
+
+                return [renderable, pos];
             })
             .forEach(([renderable, pos]) => {
                 const globalTransform = sceneCtx.getTransform();
@@ -150,4 +160,24 @@ function renderSpriteData(ctx: CanvasRenderingContext2D, spriteData: SpriteData,
         spriteData.width,
         spriteData.height
     );
+}
+
+function width(renderable: Renderable): number {
+    return match({
+        sprite: sprite => sprite.width,
+        tileGrid: tg => tg.tiles.reduce(
+            (max, tile) => Math.max(max, tile.position[0] * tg.tileSize + tile.width),
+            -Infinity
+        )
+    }, renderable);
+}
+
+function height(renderable: Renderable): number {
+    return match({
+        sprite: sprite => sprite.height,
+        tileGrid: tg => tg.tiles.reduce(
+            (max, tile) => Math.max(max, tile.position[1] * tg.tileSize + tile.height),
+            -Infinity
+        )
+    }, renderable);
 }
