@@ -1,4 +1,4 @@
-import type { SumType } from './fp';
+import type { SumType, Func } from './fp';
 import type { Maybe } from './maybe';
 import type { ComponentType, Component } from './component';
 import * as maybe from './maybe';
@@ -12,6 +12,7 @@ export interface EntitySystem {
     getEntityComponent<K extends ComponentType>(entityId: string, componentType: K): Maybe<SumType<Component, 'componentType', K>>;
     addComponent(component: Component): EntitySystem;
     updateComponent(oldComponent: Component, newComponent: Component): EntitySystem;
+    evolve(builders: Func<EntitySystem, EntitySystem>[]): EntitySystem;
 }
 
 function entitySystem(entities: { [id: string]: Entity }, components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] }): EntitySystem {
@@ -48,6 +49,12 @@ function entitySystem(entities: { [id: string]: Entity }, components: { [K in Co
                 ...components,
                 [oldComponent.componentType]: this.getComponents(oldComponent.componentType).map(component => component === oldComponent ? newComponent : component)
             })
+        },
+        evolve(builders) {
+            return builders.reduce(
+                (res, builder) => builder(res),
+                this
+            );
         }
     };
 }
@@ -58,7 +65,8 @@ export function empty(): EntitySystem {
         position: [],
         movement: [],
         cameraFocus: [],
-        animator: []
+        animator: [],
+        stateMachine: []
     });
 }
 
@@ -68,6 +76,15 @@ function emptyEntity(): Entity {
         movement: [],
         position: [],
         render: [],
-        animator: []
+        animator: [],
+        stateMachine: []
     };
+}
+
+export function addComponent(component: Component): Func<EntitySystem, EntitySystem> {
+    return es => es.addComponent(component);
+}
+
+export function updateComponent(oldComponent: Component, newComponent: Component): Func<EntitySystem, EntitySystem> {
+    return es => es.updateComponent(oldComponent, newComponent);
 }

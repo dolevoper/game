@@ -8,11 +8,29 @@ import * as inputSystem from './input-system';
 import * as positionComponent from './position-component';
 import * as movementSystem from './movement-system';
 import * as animationSystem from './animation-system';
+import * as stateMachine from './state-machine-component';
 
 import PeoplesImage from './assets/AH_SpriteSheet_People1.png';
 import GrassTileset from './assets/AH_Autotile_Grass.png';
 import HouseWallTileset from './assets/AH_Autotile_House_Wall.png';
 import HouseRoofTileset from './assets/AH_Autotile_House_Roof.png';
+
+type PlayerState =
+    | 'facing down'
+    | 'facing left'
+    | 'facing right'
+    | 'facing up'
+    | 'walking down'
+    | 'walking left'
+    | 'walking right'
+    | 'walking up';
+
+type PlayerSignal =
+    | 'holding nothing'
+    | 'holding down'
+    | 'holding left'
+    | 'holding right'
+    | 'holding up';
 
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).transferControlToOffscreen().getContext('2d');
@@ -31,6 +49,66 @@ async function startGame() {
 
     const es: EntitySystem = entitySystem
         .empty()
+        .addComponent(stateMachine.stateMachineComponent<PlayerState, PlayerSignal>('player', 'facing down', {
+            'facing down': {
+                'holding nothing': 'facing down',
+                'holding down': 'walking down',
+                'holding left': 'walking left',
+                'holding right': 'walking right',
+                'holding up': 'walking up',
+            },
+            'facing left': {
+                'holding nothing': 'facing left',
+                'holding down': 'walking down',
+                'holding left': 'walking left',
+                'holding right': 'walking right',
+                'holding up': 'walking up',
+            }
+            ,
+            'facing right': {
+                'holding nothing': 'facing right',
+                'holding down': 'walking down',
+                'holding left': 'walking left',
+                'holding right': 'walking right',
+                'holding up': 'walking up',
+            }
+            ,
+            'facing up': {
+                'holding nothing': 'facing up',
+                'holding down': 'walking down',
+                'holding left': 'walking left',
+                'holding right': 'walking right',
+                'holding up': 'walking up',
+            },
+            'walking down': {
+                'holding nothing': 'facing down',
+                'holding down': 'walking down',
+                'holding left': 'walking down',
+                'holding right': 'walking down',
+                'holding up': 'walking down',
+            },
+            'walking left': {
+                'holding nothing': 'facing left',
+                'holding down': 'walking left',
+                'holding left': 'walking left',
+                'holding right': 'walking left',
+                'holding up': 'walking left',
+            },
+            'walking right': {
+                'holding nothing': 'facing right',
+                'holding down': 'walking right',
+                'holding left': 'walking right',
+                'holding right': 'walking right',
+                'holding up': 'walking right',
+            },
+            'walking up': {
+                'holding nothing': 'facing up',
+                'holding down': 'walking up',
+                'holding left': 'walking up',
+                'holding right': 'walking up',
+                'holding up': 'walking up',
+            }
+        }))
         .addComponent(animationSystem.animatorComponent('player', 0.5, [
             renderingSystem.sprite('player', 1, {
                 image: spriteImage,
