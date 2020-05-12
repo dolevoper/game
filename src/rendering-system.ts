@@ -106,12 +106,11 @@ export function render(): State<EntitySystem, OffscreenCanvas> {
 
         entitySystem.components('render', es)
             .map((renderComponent): [Renderable, Position] => {
-                const maybePositionComponent = entitySystem.component(renderComponent.entityId, 'position', es);
-                const maybePosition = maybe.map(positionComponent => positionComponent.position, maybePositionComponent);
+                const maybePosition = entitySystem.component(renderComponent.entityId, 'position', es).map(positionComponent => positionComponent.position);
 
                 return [
                     renderComponent.renderable,
-                    maybe.withDefault([0, 0], maybePosition)
+                    maybePosition.withDefault([0, 0])
                 ];
             })
             .sort(([renderable1, position1], [renderable2, position2]) => {

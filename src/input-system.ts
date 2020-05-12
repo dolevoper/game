@@ -26,30 +26,25 @@ document.addEventListener('keyup', function (e) {
 export function update(step: number): State<EntitySystem, number> {
     return state.flatMap(
         () => state.pure(step),
-        state.modify(es => {
-            const playerMovementSystem = entitySystem.component(0, 'movement', es);
+        state.modify(es => entitySystem
+            .component(0, 'movement', es)
+            .match(ms => {
+                const movementSpeed = 64;
 
-            return maybe.match({
-                nothing: always(es),
-                just: ms => {
-                    const movementSpeed = 64;
+                let xSpeed = inputState[moveRightKey] && ms.xSpeed >= 0
+                    ? movementSpeed
+                    : inputState[moveLeftKey] ? -movementSpeed : 0;
 
-                    let xSpeed = inputState[moveRightKey] && ms.xSpeed >= 0
-                        ? movementSpeed
-                        : inputState[moveLeftKey] ? -movementSpeed : 0;
+                let ySpeed = inputState[moveDownKey] && ms.ySpeed >= 0
+                    ? movementSpeed
+                    : inputState[moveUpKey] ? -movementSpeed : 0;
 
-                    let ySpeed = inputState[moveDownKey] && ms.ySpeed >= 0
-                        ? movementSpeed
-                        : inputState[moveUpKey] ? -movementSpeed : 0;
-
-                    if (xSpeed && ySpeed) {
-                        xSpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-                        ySpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-                    }
-
-                    return entitySystem.updateComponent(ms, movementSystem.from(ms.entityId, xSpeed, ySpeed), es);
+                if (xSpeed && ySpeed) {
+                    xSpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
+                    ySpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
                 }
-            }, playerMovementSystem);
-        })
-    );
+
+                return entitySystem.updateComponent(ms, movementSystem.from(ms.entityId, xSpeed, ySpeed), es);
+            }, always(es))
+        ));
 }

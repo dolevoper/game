@@ -24,12 +24,13 @@ export function from(entityId: number, xSpeed: number, ySpeed: number): Movement
 }
 
 export function update(step: number): State<EntitySystem, void> {
-    return state.modify(es => {
-        return entitySystem
-            .components('movement', es)
-            .reduce(
-                (es, mc) => maybe.match({
-                    just: pc => {
+    return state.modify(es => entitySystem
+        .components('movement', es)
+        .reduce(
+            (es, mc) => entitySystem
+                .component(mc.entityId, 'position', es)
+                .match(
+                    pc => {
                         let xSpeed = mc.xSpeed * step / 1000;
                         let ySpeed = mc.ySpeed * step / 1000;
 
@@ -41,9 +42,9 @@ export function update(step: number): State<EntitySystem, void> {
                             pc.position
                         )), es)
                     },
-                    nothing: always(es)
-                }, entitySystem.component(mc.entityId, 'position', es)),
-                es
-            )
-    });
+                    always(es)
+                ),
+            es
+        )
+    );
 }

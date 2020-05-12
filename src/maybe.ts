@@ -3,70 +3,55 @@ import { Func, identity, always } from './fp';
 interface Just<T> {
     kind: 'just';
     value: T;
+    map<U>(fn: Func<T, U>): Maybe<U>;
+    flatMap<U>(fn: Func<T, Maybe<U>>): Maybe<U>;
+    match<U>(ifJust: Func<T, U>, ifNothing: Func<void, U>): U;
+    withDefault(value: T): T;
 }
 
-interface Nothing {
+interface Nothing<T> {
     kind: 'nothing';
+    map<U>(fn: Func<T, U>): Maybe<U>;
+    flatMap<U>(fn: Func<T, Maybe<U>>): Maybe<U>;
+    match<U>(ifJust: Func<T, U>, ifNothing: Func<void, U>): U;
+    withDefault(value: T): T;
 }
 
-export type Maybe<T> = Just<T> | Nothing;
+export type Maybe<T> = Just<T> | Nothing<T>;
 
 export function just<T>(value: T): Maybe<T> {
     return {
         kind: 'just',
-        value
+        value,
+        map(fn) {
+            return just(fn(value));
+        },
+        flatMap(fn) {
+            return fn(value);
+        },
+        match(ifJust) {
+            return ifJust(value);
+        },
+        withDefault() {
+            return value;
+        }
     };
 }
 
 export function nothing<T>(): Maybe<T> {
     return {
-        kind: 'nothing'
+        kind: 'nothing',
+        map() {
+            return nothing();
+        },
+        flatMap() {
+            return nothing();
+        },
+        match(_, ifNothing) {
+            return ifNothing();
+        },
+        withDefault(value) {
+            return value;
+        }
     };
-}
-
-type MaybeResolver<T, U> = (m: Maybe<T>) => U;
-
-export function match<T, U>(matchers: { just: Func<T, U>, nothing: () => U }): MaybeResolver<T, U>;
-export function match<T, U>(matchers: { just: Func<T, U>, nothing: () => U }, maybe: Maybe<T>): U;
-export function match<T, U>(matchers: { just: Func<T, U>, nothing: () => U }, maybe?: Maybe<T>): U | MaybeResolver<T, U> {
-    const resolve: MaybeResolver<T, U> = maybe => {
-        if (maybe.kind === 'just') return matchers.just(maybe.value);
-
-        return matchers.nothing();
-    };
-
-    return maybe ? resolve(maybe) : resolve;
-}
-
-export function withDefault<T>(defaultValue: T): MaybeResolver<T, T>;
-export function withDefault<T>(defaultValue: T, maybe: Maybe<T>): T;
-export function withDefault<T>(defaultValue: T, maybe?: Maybe<T>): T | MaybeResolver<T, T> {
-    const resolve: MaybeResolver<T, T> = maybe => match({
-        just: identity,
-        nothing: always(defaultValue)
-    }, maybe);
-
-    return maybe ? resolve(maybe) : resolve;
-}
-
-export function map<T, U>(projection: Func<T, U>): MaybeResolver<T, Maybe<U>>;
-export function map<T, U>(projection: Func<T, U>, maybe: Maybe<T>): Maybe<U>;
-export function map<T, U>(projection: Func<T, U>, maybe?: Maybe<T>): Maybe<U> | MaybeResolver<T, Maybe<U>> {
-    const resolve: MaybeResolver<T, Maybe<U>> = maybe => match({
-        just: value => just(projection(value)),
-        nothing: always(nothing())
-    }, maybe);
-
-    return maybe ? resolve(maybe) : resolve;
-}
-
-export function flatMap<T, U>(fn: Func<T, Maybe<U>>): MaybeResolver<T, Maybe<U>>;
-export function flatMap<T, U>(fn: Func<T, Maybe<U>>, maybe: Maybe<T>): Maybe<U>;
-export function flatMap<T, U>(fn: Func<T, Maybe<U>>, maybe?: Maybe<T>): Maybe<U> | MaybeResolver<T, Maybe<U>> {
-    const resolve: MaybeResolver<T, Maybe<U>> = maybe => match({
-        just: value => fn(value),
-        nothing: always(nothing())
-    }, maybe);
-
-    return maybe ? resolve(maybe) : resolve;
 }

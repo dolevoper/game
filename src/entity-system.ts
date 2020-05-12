@@ -22,12 +22,21 @@ export function empty(): EntitySystem {
     };
 }
 
+function emptyEntity(): Entity {
+    return {
+        cameraFocus: maybe.nothing(),
+        movement: maybe.nothing(),
+        position: maybe.nothing(),
+        render: maybe.nothing()
+    };
+}
+
 export function components<K extends ComponentType>(componentType: K, entitySystem: EntitySystem): SumType<Component, 'componentType', K>[] {
     return entitySystem.components[componentType] as SumType<Component, 'componentType', K>[];
 }
 
 export function component<K extends ComponentType>(entityId: number, componentType: K, entitySystem: EntitySystem): Maybe<SumType<Component, 'componentType', K>> {
-    return maybe.map(componentId => components(componentType, entitySystem)[componentId], entitySystem.entities[entityId][componentType]);
+    return entitySystem.entities[entityId][componentType].map(componentId => components(componentType, entitySystem)[componentId]);
 }
 
 type EntitySystemBuilder = Func<EntitySystem, EntitySystem>;
@@ -35,19 +44,23 @@ type EntitySystemBuilder = Func<EntitySystem, EntitySystem>;
 export function addComponent(component: Component): EntitySystemBuilder;
 export function addComponent(component: Component, entitySystem: EntitySystem): EntitySystem;
 export function addComponent(component: Component, entitySystem?: EntitySystem): EntitySystem | EntitySystemBuilder {
-    const build: EntitySystemBuilder = entitySystem => ({
-        entities: {
-            ...entitySystem.entities,
-            [component.entityId]: {
-                ...entitySystem.entities[component.entityId],
-                [component.componentType]: maybe.just(entitySystem.components[component.componentType].length)
+    const build: EntitySystemBuilder = entitySystem => {
+        const entity = entitySystem.entities[component.entityId] || emptyEntity();
+
+        return {
+            entities: {
+                ...entitySystem.entities,
+                [component.entityId]: {
+                    ...entity,
+                    [component.componentType]: maybe.just(entitySystem.components[component.componentType].length)
+                }
+            },
+            components: {
+                ...entitySystem.components,
+                [component.componentType]: [...entitySystem.components[component.componentType], component]
             }
-        },
-        components: {
-            ...entitySystem.components,
-            [component.componentType]: [...entitySystem.components[component.componentType], component]
-        }
-    });
+        };
+    };
 
     return entitySystem ? build(entitySystem): build;
 }

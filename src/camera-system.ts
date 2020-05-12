@@ -27,16 +27,13 @@ export function render(viewPortCtx: OffscreenCanvasRenderingContext2D, scale: nu
     return sceneCanvas => state.get(es => {
         const cameraFocusComponents = entitySystem.components('cameraFocus', es);
         const cameraFocus: Maybe<CameraFocusComponent> = cameraFocusComponents.length ? maybe.just(cameraFocusComponents[0]) : maybe.nothing();
-        const offset = compose(
-            maybe.withDefault<Position>([0, 0]),
-            maybe.map((cameraFocusComponent: CameraFocusComponent) => cameraFocusComponent.offset)
-        )(cameraFocus);
-        const focusPosition = compose(
-            position.add(offset),
-            maybe.withDefault<Position>([0, 0]),
-            maybe.map((positionComponent: PositionComponent) => positionComponent.position),
-            maybe.flatMap((cameraFocusComponent: CameraFocusComponent) => entitySystem.component(cameraFocusComponent.entityId, 'position', es))
-        )(cameraFocus)
+        const offset = cameraFocus.map(cfc => cfc.offset).withDefault([0, 0]);
+        
+        const focusPosition = cameraFocus
+            .flatMap(cameraFocusComponent => entitySystem.component(cameraFocusComponent.entityId, 'position', es))
+            .map(pc => pc.position)
+            .map(position.add(offset))
+            .withDefault(offset);
 
         const viewPortWidth = viewPortCtx.canvas.width;
         const viewPortHeight = viewPortCtx.canvas.height;
