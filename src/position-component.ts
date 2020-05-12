@@ -6,7 +6,7 @@ export interface PositionComponent {
     position: Position;
 }
 
-export function from(entityId: string, position: Position): PositionComponent {
+export function positionComponent(entityId: string, position: Position): PositionComponent {
     return {
         componentType: 'position',
         entityId,

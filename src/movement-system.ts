@@ -12,7 +12,7 @@ export interface MovementComponent {
     ySpeed: number;
 }
 
-export function from(entityId: string, xSpeed: number, ySpeed: number): MovementComponent {
+export function movementComponent(entityId: string, xSpeed: number, ySpeed: number): MovementComponent {
     return {
         componentType: 'movement',
         entityId,
@@ -35,7 +35,7 @@ export function update(step: number): State<EntitySystem, void> {
                         xSpeed = mc.xSpeed > 0 ? Math.ceil(xSpeed) : Math.floor(xSpeed);
                         ySpeed = mc.ySpeed > 0 ? Math.ceil(ySpeed) : Math.floor(ySpeed);
 
-                        return es.updateComponent(pc, positionComponent.from(pc.entityId, position.add(
+                        return es.updateComponent(pc, positionComponent.positionComponent(pc.entityId, position.add(
                             [xSpeed, ySpeed],
                             pc.position
                         )))

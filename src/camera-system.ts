@@ -13,7 +13,7 @@ export interface CameraFocusComponent {
     offset: Position;
 }
 
-export function from(entityId: string, offset: Position = [0, 0]): CameraFocusComponent {
+export function cameraFocusComponent(entityId: string, offset: Position = [0, 0]): CameraFocusComponent {
     return {
         componentType: 'cameraFocus',
         entityId,

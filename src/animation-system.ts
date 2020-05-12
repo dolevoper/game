@@ -12,7 +12,7 @@ export interface AnimatorComponent extends ZipList<RenderComponent> {
     step: number;
 }
 
-export function fromRenderComponents(entityId: string, frequency: number, renderComponents: RenderComponent[]): AnimatorComponent {
+export function animatorComponent(entityId: string, frequency: number, renderComponents: RenderComponent[]): AnimatorComponent {
     return {
         componentType: 'animator',
         entityId,

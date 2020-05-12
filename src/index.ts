@@ -31,7 +31,7 @@ async function startGame() {
 
     const es: EntitySystem = entitySystem
         .empty()
-        .addComponent(animationSystem.fromRenderComponents('player', 0.5, [
+        .addComponent(animationSystem.animatorComponent('player', 0.5, [
             renderingSystem.sprite('player', 1, {
                 image: spriteImage,
                 width: 16,
@@ -61,9 +61,9 @@ async function startGame() {
                 y: 0
             })
         ]))
-        .addComponent(positionComponent.from('player', [16, 16]))
-        .addComponent(movementSystem.from('player', 0, 0))
-        .addComponent(cameraSystem.from('player', [8, 8]))
+        .addComponent(positionComponent.positionComponent('player', [16, 16]))
+        .addComponent(movementSystem.movementComponent('player', 0, 0))
+        .addComponent(cameraSystem.cameraFocusComponent('player', [8, 8]))
         .addComponent(renderingSystem.fromTileset('terrain', tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },

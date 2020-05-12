@@ -41,7 +41,7 @@ export function update(step: number): State<EntitySystem, number> {
                     ySpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
                 }
 
-                return es.updateComponent(ms, movementSystem.from(ms.entityId, xSpeed, ySpeed));
+                return es.updateComponent(ms, movementSystem.movementComponent(ms.entityId, xSpeed, ySpeed));
             }, always(es))
         )
         .flatMap(() => state.pure(step))
