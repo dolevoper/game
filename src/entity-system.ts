@@ -3,7 +3,7 @@ import type { Maybe } from './maybe';
 import type { ComponentType, Component } from './component';
 import * as maybe from './maybe';
 
-type Entity = { [K in ComponentType]: Maybe<number> };
+type Entity = { [K in ComponentType]: number[] };
 
 export interface EntitySystem {
     entities: { [id: number]: Entity };
@@ -22,7 +22,9 @@ function entitySystem(entities: { [id: number]: Entity }, components: { [K in Co
             return components[componentType] as SumType<Component, 'componentType', K>[];
         },
         getEntityComponent(entityId, componentType) {
-            return entities[entityId][componentType].map(componentId => this.getComponents(componentType)[componentId]);
+            const entityComponents = entities[entityId][componentType];
+            
+            return entityComponents.length ? maybe.just(this.getComponents(componentType)[entityComponents[0]]) : maybe.nothing();
         },
         addComponent(component) {
             const updatedEntity = entities[component.entityId] || emptyEntity();
@@ -32,7 +34,7 @@ function entitySystem(entities: { [id: number]: Entity }, components: { [K in Co
                     ...entities,
                     [component.entityId]: {
                         ...updatedEntity,
-                        [component.componentType]: maybe.just(components[component.componentType].length)
+                        [component.componentType]: [...updatedEntity[component.componentType], components[component.componentType].length]
                     }
                 },
                 {
@@ -62,10 +64,10 @@ export function empty(): EntitySystem {
 
 function emptyEntity(): Entity {
     return {
-        cameraFocus: maybe.nothing(),
-        movement: maybe.nothing(),
-        position: maybe.nothing(),
-        render: maybe.nothing(),
-        animator: maybe.nothing()
+        cameraFocus: [],
+        movement: [],
+        position: [],
+        render: [],
+        animator: []
     };
 }
