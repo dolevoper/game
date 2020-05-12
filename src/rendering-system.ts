@@ -4,7 +4,6 @@ import type { Position } from './position';
 import type { EntitySystem } from './entity-system';
 import * as state from './state';
 import * as position from './position';
-import * as entitySystem from './entity-system';
 
 interface SpriteData {
     image: CanvasImageSource;
@@ -103,9 +102,11 @@ export function render(): State<EntitySystem, OffscreenCanvas> {
 
         if (!sceneCtx) return sceneCanvas;
 
-        entitySystem.components('render', es)
+        es.getComponents('render')
             .map((renderComponent): [Renderable, Position] => {
-                const maybePosition = entitySystem.component(renderComponent.entityId, 'position', es).map(positionComponent => positionComponent.position);
+                const maybePosition = es
+                    .getEntityComponent(renderComponent.entityId, 'position')
+                    .map(positionComponent => positionComponent.position);
 
                 return [
                     renderComponent.renderable,

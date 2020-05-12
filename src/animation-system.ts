@@ -4,7 +4,6 @@ import type { EntitySystem } from './entity-system';
 import type { RenderComponent } from './rendering-system';
 import * as zipList from './zip-list';
 import * as state from './state';
-import * as entitySystem from './entity-system';
 
 export interface AnimatorComponent extends ZipList<RenderComponent> {
     componentType: 'animator';
@@ -44,18 +43,19 @@ function mapStep(step: number, animatorComponent: AnimatorComponent): AnimatorCo
 export function update(step: number): State<EntitySystem, number> {
     return state
         .modify<EntitySystem>(es =>
-            entitySystem
-                .components('animator', es)
+            es
+                .getComponents('animator')
                 .reduce(
                     (es, component) => {
                         const updatedComponent = mapStep(step, component);
 
-                        const updatedES = entitySystem.component(component.entityId, 'render', es).match(
-                            renderComponent => entitySystem.updateComponent(renderComponent, zipList.curr(updatedComponent), es),
-                            () => entitySystem.addComponent(zipList.curr(component), es)
-                        )
-
-                        return entitySystem.updateComponent(component, updatedComponent, updatedES);
+                        return es
+                            .getEntityComponent(component.entityId, 'render')
+                            .match(
+                                renderComponent => es.updateComponent(renderComponent, zipList.curr(updatedComponent)),
+                                () => es.addComponent(zipList.curr(component))
+                            )
+                            .updateComponent(component, updatedComponent)
                     },
                     es
                 )

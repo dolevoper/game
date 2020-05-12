@@ -1,10 +1,8 @@
 import { always } from './fp';
 import type { State } from './state';
 import type { EntitySystem } from './entity-system';
-import * as maybe from './maybe';
 import * as state from './state';
 import * as position from './position';
-import * as entitySystem from './entity-system';
 import * as positionComponent from './position-component';
 
 export interface MovementComponent {
@@ -24,11 +22,11 @@ export function from(entityId: number, xSpeed: number, ySpeed: number): Movement
 }
 
 export function update(step: number): State<EntitySystem, void> {
-    return state.modify(es => entitySystem
-        .components('movement', es)
+    return state.modify(es => es
+        .getComponents('movement')
         .reduce(
-            (es, mc) => entitySystem
-                .component(mc.entityId, 'position', es)
+            (es, mc) => es
+                .getEntityComponent(mc.entityId, 'position')
                 .match(
                     pc => {
                         let xSpeed = mc.xSpeed * step / 1000;
@@ -37,10 +35,10 @@ export function update(step: number): State<EntitySystem, void> {
                         xSpeed = mc.xSpeed > 0 ? Math.ceil(xSpeed) : Math.floor(xSpeed);
                         ySpeed = mc.ySpeed > 0 ? Math.ceil(ySpeed) : Math.floor(ySpeed);
 
-                        return entitySystem.updateComponent(pc, positionComponent.from(pc.entityId, position.add(
+                        return es.updateComponent(pc, positionComponent.from(pc.entityId, position.add(
                             [xSpeed, ySpeed],
                             pc.position
-                        )), es)
+                        )))
                     },
                     always(es)
                 ),

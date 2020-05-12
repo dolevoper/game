@@ -1,13 +1,11 @@
-import { Func, compose } from './fp';
+import type { Func } from './fp';
 import type { Maybe } from './maybe';
 import type { State } from './state';
 import type { Position } from './position';
 import type { EntitySystem } from './entity-system';
-import type { PositionComponent } from './position-component';
 import * as maybe from './maybe';
 import * as state from './state';
 import * as position from './position';
-import * as entitySystem from './entity-system';
 
 export interface CameraFocusComponent {
     componentType: 'cameraFocus';
@@ -25,12 +23,12 @@ export function from(entityId: number, offset: Position = [0, 0]): CameraFocusCo
 
 export function render(viewPortCtx: OffscreenCanvasRenderingContext2D, scale: number = 1): Func<OffscreenCanvas, State<EntitySystem, void>> {
     return sceneCanvas => state.get(es => {
-        const cameraFocusComponents = entitySystem.components('cameraFocus', es);
+        const cameraFocusComponents = es.getComponents('cameraFocus');
         const cameraFocus: Maybe<CameraFocusComponent> = cameraFocusComponents.length ? maybe.just(cameraFocusComponents[0]) : maybe.nothing();
         const offset = cameraFocus.map(cfc => cfc.offset).withDefault([0, 0]);
         
         const focusPosition = cameraFocus
-            .flatMap(cameraFocusComponent => entitySystem.component(cameraFocusComponent.entityId, 'position', es))
+            .flatMap(cameraFocusComponent => es.getEntityComponent(cameraFocusComponent.entityId, 'position'))
             .map(pc => pc.position)
             .map(position.add(offset))
             .withDefault(offset);

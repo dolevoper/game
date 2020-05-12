@@ -1,4 +1,4 @@
-import type { Func, SumType } from './fp';
+import type { SumType } from './fp';
 import type { Maybe } from './maybe';
 import type { ComponentType, Component } from './component';
 import * as maybe from './maybe';
@@ -8,19 +8,56 @@ type Entity = { [K in ComponentType]: Maybe<number> };
 export interface EntitySystem {
     entities: { [id: number]: Entity };
     components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] };
+    getComponents<K extends ComponentType>(componentType: K): SumType<Component, 'componentType', K>[];
+    getEntityComponent<K extends ComponentType>(entityId: number, componentType: K): Maybe<SumType<Component, 'componentType', K>>;
+    addComponent(component: Component): EntitySystem;
+    updateComponent(oldComponent: Component, newComponent: Component): EntitySystem;
+}
+
+function entitySystem(entities: { [id: number]: Entity }, components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] }): EntitySystem {
+    return {
+        entities,
+        components,
+        getComponents<K extends ComponentType>(componentType: K) {
+            return components[componentType] as SumType<Component, 'componentType', K>[];
+        },
+        getEntityComponent(entityId, componentType) {
+            return entities[entityId][componentType].map(componentId => this.getComponents(componentType)[componentId]);
+        },
+        addComponent(component) {
+            const updatedEntity = entities[component.entityId] || emptyEntity();
+
+            return entitySystem(
+                {
+                    ...entities,
+                    [component.entityId]: {
+                        ...updatedEntity,
+                        [component.componentType]: maybe.just(components[component.componentType].length)
+                    }
+                },
+                {
+                    ...components,
+                    [component.componentType]: [...components[component.componentType], component]
+                }
+            );
+        },
+        updateComponent(oldComponent, newComponent) {
+            return entitySystem(entities, {
+                ...components,
+                [oldComponent.componentType]: this.getComponents(oldComponent.componentType).map(component => component === oldComponent ? newComponent : component)
+            })
+        }
+    };
 }
 
 export function empty(): EntitySystem {
-    return {
-        entities: {},
-        components: {
-            render: [],
-            position: [],
-            movement: [],
-            cameraFocus: [],
-            animator: []
-        }
-    };
+    return entitySystem({}, {
+        render: [],
+        position: [],
+        movement: [],
+        cameraFocus: [],
+        animator: []
+    });
 }
 
 function emptyEntity(): Entity {
@@ -31,57 +68,4 @@ function emptyEntity(): Entity {
         render: maybe.nothing(),
         animator: maybe.nothing()
     };
-}
-
-export function components<K extends ComponentType>(componentType: K, entitySystem: EntitySystem): SumType<Component, 'componentType', K>[] {
-    return entitySystem.components[componentType] as SumType<Component, 'componentType', K>[];
-}
-
-export function component<K extends ComponentType>(entityId: number, componentType: K, entitySystem: EntitySystem): Maybe<SumType<Component, 'componentType', K>> {
-    return entitySystem.entities[entityId][componentType].map(componentId => components(componentType, entitySystem)[componentId]);
-}
-
-type EntitySystemBuilder = Func<EntitySystem, EntitySystem>;
-
-export function addComponent(component: Component): EntitySystemBuilder;
-export function addComponent(component: Component, entitySystem: EntitySystem): EntitySystem;
-export function addComponent(component: Component, entitySystem?: EntitySystem): EntitySystem | EntitySystemBuilder {
-    const build: EntitySystemBuilder = entitySystem => {
-        const entity = entitySystem.entities[component.entityId] || emptyEntity();
-
-        return {
-            entities: {
-                ...entitySystem.entities,
-                [component.entityId]: {
-                    ...entity,
-                    [component.componentType]: maybe.just(entitySystem.components[component.componentType].length)
-                }
-            },
-            components: {
-                ...entitySystem.components,
-                [component.componentType]: [...entitySystem.components[component.componentType], component]
-            }
-        };
-    };
-
-    return entitySystem ? build(entitySystem): build;
-}
-
-export function updateComponent<K extends ComponentType>(oldComponent: SumType<Component, 'componentType', K>, newComponent: SumType<Component, 'componentType', K>, entitySystem: EntitySystem): EntitySystem {
-    return {
-        ...entitySystem,
-        components: {
-            ...entitySystem.components,
-            [oldComponent.componentType]: components(oldComponent.componentType, entitySystem).map(
-                currComponent => currComponent === oldComponent ? newComponent : currComponent
-            )
-        }
-    };
-}
-
-export function build(builders: EntitySystemBuilder[], entitySystem: EntitySystem): EntitySystem {
-    return builders.reduce(
-        (res, builder) => builder(res),
-        entitySystem
-    );
 }
