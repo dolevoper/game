@@ -9,11 +9,11 @@ import * as position from './position';
 
 export interface CameraFocusComponent {
     componentType: 'cameraFocus';
-    entityId: number;
+    entityId: string;
     offset: Position;
 }
 
-export function from(entityId: number, offset: Position = [0, 0]): CameraFocusComponent {
+export function from(entityId: string, offset: Position = [0, 0]): CameraFocusComponent {
     return {
         componentType: 'cameraFocus',
         entityId,

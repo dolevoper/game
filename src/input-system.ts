@@ -24,7 +24,7 @@ document.addEventListener('keyup', function (e) {
 export function update(step: number): State<EntitySystem, number> {
     return state
         .modify<EntitySystem>(es => es
-            .getEntityComponent(0, 'movement')
+            .getEntityComponent('player', 'movement')
             .match(ms => {
                 const movementSpeed = 64;
 

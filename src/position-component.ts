@@ -2,11 +2,11 @@ import type { Position } from './position';
 
 export interface PositionComponent {
     componentType: 'position';
-    entityId: number;
+    entityId: string;
     position: Position;
 }
 
-export function from(entityId: number, position: Position): PositionComponent {
+export function from(entityId: string, position: Position): PositionComponent {
     return {
         componentType: 'position',
         entityId,

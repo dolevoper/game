@@ -31,29 +31,29 @@ async function startGame() {
 
     const es: EntitySystem = entitySystem
         .empty()
-        .addComponent(animationSystem.fromRenderComponents(0, 0.5, [
-            renderingSystem.sprite(0, 1, {
+        .addComponent(animationSystem.fromRenderComponents('player', 0.5, [
+            renderingSystem.sprite('player', 1, {
                 image: spriteImage,
                 width: 16,
                 height: 16,
                 x: 0,
                 y: 0
             }),
-            renderingSystem.sprite(0, 1, {
+            renderingSystem.sprite('player', 1, {
                 image: spriteImage,
                 width: 16,
                 height: 16,
                 x: 16,
                 y: 0
             }),
-            renderingSystem.sprite(0, 1, {
+            renderingSystem.sprite('player', 1, {
                 image: spriteImage,
                 width: 16,
                 height: 16,
                 x: 32,
                 y: 0
             }),
-            renderingSystem.sprite(0, 1, {
+            renderingSystem.sprite('player', 1, {
                 image: spriteImage,
                 width: 16,
                 height: 16,
@@ -61,10 +61,10 @@ async function startGame() {
                 y: 0
             })
         ]))
-        .addComponent(positionComponent.from(0, [16, 16]))
-        .addComponent(movementSystem.from(0, 0, 0))
-        .addComponent(cameraSystem.from(0, [8, 8]))
-        .addComponent(renderingSystem.fromTileset(1, tileSize, 0, [
+        .addComponent(positionComponent.from('player', [16, 16]))
+        .addComponent(movementSystem.from('player', 0, 0))
+        .addComponent(cameraSystem.from('player', [8, 8]))
+        .addComponent(renderingSystem.fromTileset('terrain', tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 8, y: 3, width: tileSize, height: tileSize },
@@ -106,7 +106,7 @@ async function startGame() {
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`))
-        .addComponent(renderingSystem.fromTileset(1, 16, 2, [
+        .addComponent(renderingSystem.fromTileset('terrain', 16, 2, [
             { image: houseRoofImage, height: 16, width: 16, x: 8, y: 0 },
             { image: houseRoofImage, height: 16, width: 16, x: 9, y: 0 },
             { image: houseRoofImage, height: 16, width: 16, x: 11, y: 0 }

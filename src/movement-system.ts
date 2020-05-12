@@ -7,12 +7,12 @@ import * as positionComponent from './position-component';
 
 export interface MovementComponent {
     componentType: 'movement';
-    entityId: number;
+    entityId: string;
     xSpeed: number;
     ySpeed: number;
 }
 
-export function from(entityId: number, xSpeed: number, ySpeed: number): MovementComponent {
+export function from(entityId: string, xSpeed: number, ySpeed: number): MovementComponent {
     return {
         componentType: 'movement',
         entityId,

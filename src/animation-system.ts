@@ -7,12 +7,12 @@ import * as state from './state';
 
 export interface AnimatorComponent extends ZipList<RenderComponent> {
     componentType: 'animator';
-    entityId: number;
+    entityId: string;
     frequency: number;
     step: number;
 }
 
-export function fromRenderComponents(entityId: number, frequency: number, renderComponents: RenderComponent[]): AnimatorComponent {
+export function fromRenderComponents(entityId: string, frequency: number, renderComponents: RenderComponent[]): AnimatorComponent {
     return {
         componentType: 'animator',
         entityId,

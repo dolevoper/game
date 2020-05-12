@@ -35,13 +35,13 @@ type Renderable = Sprite | TileGrid;
 
 export interface RenderComponent {
     componentType: 'render';
-    entityId: number;
+    entityId: string;
     renderable: Renderable;
 }
 
 export type HasRenderComponents = { renderComponents: RenderComponent[] };
 
-export function sprite(entityId: number, layer: number, spriteData: SpriteData): RenderComponent {
+export function sprite(entityId: string, layer: number, spriteData: SpriteData): RenderComponent {
     return {
         componentType: 'render',
         entityId,
@@ -54,7 +54,7 @@ export function sprite(entityId: number, layer: number, spriteData: SpriteData):
     };
 }
 
-export function fromTileset(entityId: number, tileSize: number, layer: number, tileset: SpriteData[], map: string): RenderComponent {
+export function fromTileset(entityId: string, tileSize: number, layer: number, tileset: SpriteData[], map: string): RenderComponent {
     const tiles: Tile[] = map
         .split('\n')
         .map(row => row.split(',').map(num => num === '' ? undefined : parseInt(num)))

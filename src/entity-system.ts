@@ -6,15 +6,15 @@ import * as maybe from './maybe';
 type Entity = { [K in ComponentType]: number[] };
 
 export interface EntitySystem {
-    entities: { [id: number]: Entity };
+    entities: { [id: string]: Entity };
     components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] };
     getComponents<K extends ComponentType>(componentType: K): SumType<Component, 'componentType', K>[];
-    getEntityComponent<K extends ComponentType>(entityId: number, componentType: K): Maybe<SumType<Component, 'componentType', K>>;
+    getEntityComponent<K extends ComponentType>(entityId: string, componentType: K): Maybe<SumType<Component, 'componentType', K>>;
     addComponent(component: Component): EntitySystem;
     updateComponent(oldComponent: Component, newComponent: Component): EntitySystem;
 }
 
-function entitySystem(entities: { [id: number]: Entity }, components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] }): EntitySystem {
+function entitySystem(entities: { [id: string]: Entity }, components: { [K in ComponentType]: SumType<Component, 'componentType', K>[] }): EntitySystem {
     return {
         entities,
         components,
