@@ -7,6 +7,7 @@ import * as cameraSystem from './camera-system';
 import * as inputSystem from './input-system';
 import * as positionComponent from './position-component';
 import * as movementSystem from './movement-system';
+import * as animationSystem from './animation-system';
 
 import PeoplesImage from './assets/AH_SpriteSheet_People1.png';
 import GrassTileset from './assets/AH_Autotile_Grass.png';
@@ -29,13 +30,36 @@ async function startGame() {
     const tileSize = 16;
 
     const es: EntitySystem = entitySystem.build([
-        entitySystem.addComponent(renderingSystem.sprite(0, 1, {
-            image: spriteImage,
-            width: 16,
-            height: 16,
-            x: 0,
-            y: 0
-        })),
+        entitySystem.addComponent(animationSystem.fromRenderComponents(0, 0.5, [
+            renderingSystem.sprite(0, 1, {
+                image: spriteImage,
+                width: 16,
+                height: 16,
+                x: 0,
+                y: 0
+            }),
+            renderingSystem.sprite(0, 1, {
+                image: spriteImage,
+                width: 16,
+                height: 16,
+                x: 16,
+                y: 0
+            }),
+            renderingSystem.sprite(0, 1, {
+                image: spriteImage,
+                width: 16,
+                height: 16,
+                x: 32,
+                y: 0
+            }),
+            renderingSystem.sprite(0, 1, {
+                image: spriteImage,
+                width: 16,
+                height: 16,
+                x: 16,
+                y: 0
+            })
+        ])),
         entitySystem.addComponent(positionComponent.from(0, [16, 16])),
         entitySystem.addComponent(movementSystem.from(0, 0, 0)),
         entitySystem.addComponent(cameraSystem.from(0, [8, 8])),
@@ -82,9 +106,9 @@ async function startGame() {
             5,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,6
             2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3`)),
         entitySystem.addComponent(renderingSystem.fromTileset(1, 16, 2, [
-            { image: houseRoofImage, height: 16, width: 16, x: 8, y: 0},
-            { image: houseRoofImage, height: 16, width: 16, x: 9, y: 0},
-            { image: houseRoofImage, height: 16, width: 16, x: 11, y: 0}
+            { image: houseRoofImage, height: 16, width: 16, x: 8, y: 0 },
+            { image: houseRoofImage, height: 16, width: 16, x: 9, y: 0 },
+            { image: houseRoofImage, height: 16, width: 16, x: 11, y: 0 }
         ], `\n\n\n\n\n,,,,,,,,,,0,1,1,2`))
     ], entitySystem.empty());
 
@@ -94,11 +118,12 @@ async function startGame() {
         const newState = state
             .pure<EntitySystem, number>(step)
             .flatMap(inputSystem.update)
+            .flatMap(animationSystem.update)
             .flatMap(movementSystem.update)
             .flatMap(renderingSystem.render)
             .flatMap(cameraSystem.render(gameCtx, 3))
             .execWith(es);
-        
+
         requestAnimationFrame(gameLoop(timestamp, newState));
     };
 

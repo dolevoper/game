@@ -17,7 +17,8 @@ export function empty(): EntitySystem {
             render: [],
             position: [],
             movement: [],
-            cameraFocus: []
+            cameraFocus: [],
+            animator: []
         }
     };
 }
@@ -27,7 +28,8 @@ function emptyEntity(): Entity {
         cameraFocus: maybe.nothing(),
         movement: maybe.nothing(),
         position: maybe.nothing(),
-        render: maybe.nothing()
+        render: maybe.nothing(),
+        animator: maybe.nothing()
     };
 }
 

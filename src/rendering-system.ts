@@ -2,7 +2,6 @@ import type { Func, SumType } from './fp';
 import type { State } from './state';
 import type { Position } from './position';
 import type { EntitySystem } from './entity-system';
-import * as maybe from './maybe';
 import * as state from './state';
 import * as position from './position';
 import * as entitySystem from './entity-system';
