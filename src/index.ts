@@ -109,36 +109,164 @@ async function startGame() {
                 'holding up': 'walking up',
             }
         }))
-        .addComponent(animationSystem.animatorComponent('player', 0.5, [
-            renderingSystem.sprite('player', 1, {
-                image: spriteImage,
-                width: 16,
-                height: 16,
-                x: 0,
-                y: 0
-            }),
-            renderingSystem.sprite('player', 1, {
-                image: spriteImage,
-                width: 16,
-                height: 16,
-                x: 16,
-                y: 0
-            }),
-            renderingSystem.sprite('player', 1, {
-                image: spriteImage,
-                width: 16,
-                height: 16,
-                x: 32,
-                y: 0
-            }),
-            renderingSystem.sprite('player', 1, {
-                image: spriteImage,
-                width: 16,
-                height: 16,
-                x: 16,
-                y: 0
-            })
-        ]))
+        .addComponent(animationSystem.animatorSelectorComponent('player', {
+            'facing down': animationSystem.animatorComponent('player', 1, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 0
+                })
+            ]),
+            'facing left': animationSystem.animatorComponent('player', 1, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 16
+                })
+            ]),
+            'facing right': animationSystem.animatorComponent('player', 1, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 32
+                })
+            ]),
+            'facing up': animationSystem.animatorComponent('player', 1, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 48
+                })
+            ]),
+            'walking down': animationSystem.animatorComponent('player', 0.5, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 0,
+                    y: 0
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 0
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 32,
+                    y: 0
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 0
+                })
+            ]),
+            'walking left': animationSystem.animatorComponent('player', 0.5, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 0,
+                    y: 16
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 16
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 32,
+                    y: 16
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 32
+                })
+            ]),
+            'walking right': animationSystem.animatorComponent('player', 0.5, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 0,
+                    y: 32
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 32
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 32,
+                    y: 32
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 32
+                })
+            ]),
+            'walking up': animationSystem.animatorComponent('player', 0.5, [
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 0,
+                    y: 48
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 48
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 32,
+                    y: 48
+                }),
+                renderingSystem.sprite('player', 1, {
+                    image: spriteImage,
+                    width: 16,
+                    height: 16,
+                    x: 16,
+                    y: 48
+                })
+            ])
+        }))
         .addComponent(positionComponent.positionComponent('player', [16, 16]))
         .addComponent(movementSystem.movementComponent('player', 0, 0))
         .addComponent(cameraSystem.cameraFocusComponent('player', [8, 8]))

@@ -17,10 +17,6 @@ export function stateMachineComponent<T extends string, U extends string>(
         currentState,
         transitions,
         signal(sig: U) {
-            if (transitions[currentState][sig] !== currentState) {
-                console.log(`${currentState} => ${transitions[currentState][sig]}`);
-            }
-            
             return stateMachineComponent(entityId, transitions[currentState][sig], transitions);
         }
     }
