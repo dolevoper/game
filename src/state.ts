@@ -1,83 +1,53 @@
-import { Func, compose } from './fp';
+import type { Func } from './fp';
 
 export interface State<T, U> {
-    run(state: T): [U, T];
+    run(s: T): [U, T];
+    map<V>(fn: Func<U, V>): State<T, V>;
+    flatMap<V>(fn: Func<U, State<T, V>>): State<T, V>;
+    evalWith(s: T): U;
+    execWith(s: T): T;
+}
+
+function state<T, U>(run: Func<T, [U, T]>): State<T, U> {
+    return {
+        run,
+        map(fn) {
+            return state(s => {
+                const [value, newState] = run(s);
+
+                return [fn(value), newState];
+            });
+        },
+        flatMap(fn) {
+            return state(s => {
+                const [value, newState] = run(s);
+
+                return fn(value).run(newState);
+            });
+        },
+        evalWith(s) {
+            return run(s)[0];
+        },
+        execWith(s) {
+            return run(s)[1];
+        }
+    }
 }
 
 export function pure<T, U>(value: U): State<T, U> {
-    return {
-        run(state) {
-            return [value, state];
-        }
-    }
+    return state(s => [value, s]);
 }
 
-export function get<T, U>(): State<T, T>;
+export function get<T>(): State<T, T>;
 export function get<T, U>(fn: Func<T, U>): State<T, U>;
 export function get<T, U>(fn?: Func<T, U>): State<T, T> | State<T, U> {
-    return fn ? {
-        run(state) {
-            return [fn(state), state];
-        }
-    } : {
-        run(state) {
-            return [state, state];
-        }
-    };
+    return fn ? state(s => [fn(s), s]) : state(s => [s, s]);
 }
 
 export function put<T>(newState: T): State<T, void> {
-    return {
-        run() {
-            return [, newState];
-        }
-    };
+    return state(() => [, newState]);
 }
 
 export function modify<T>(fn: Func<T, T>): State<T, void> {
-    return flatMap(s => put(fn(s)), get());
-}
-
-export function map<T, U, V>(fn: Func<U, V>): Func<State<T, U>, State<T, V>>;
-export function map<T, U, V>(fn: Func<U, V>, m: State<T, U>): State<T, V>;
-export function map<T, U, V>(fn: Func<U, V>, m?: State<T, U>): State<T, V> | Func<State<T, U>, State<T, V>> {
-    const run: Func<State<T, U>, State<T, V>> = m => ({
-        run(state) {
-            const [value, newState] = m.run(state);
-
-            return [fn(value), newState];
-        }
-    });
-
-    return m ? run(m) : run;
-}
-
-export function flat<T, U>(m: State<T, State<T, U>>): State<T, U> {
-    return {
-        run(state) {
-            const [value, newState] = m.run(state);
-
-            return value.run(newState);
-        }
-    }
-}
-
-export function flatMap<T, U, V>(fn: Func<U, State<T, V>>): Func<State<T, U>, State<T, V>>;
-export function flatMap<T, U, V>(fn: Func<U, State<T, V>>, m: State<T, U>): State<T, V>;
-export function flatMap<T, U, V>(fn: Func<U, State<T, V>>, m?: State<T, U>): State<T, V> | Func<State<T, U>, State<T, V>> {
-    const run: Func<State<T, U>, State<T, V>> = compose(flat, map(fn));
-
-    return m ? run(m) : run;
-}
-
-export function evalState<T, U>(state: T, m: State<T, U>): U {
-    const [value, _] = m.run(state);
-
-    return value;
-}
-
-export function execState<T, U>(state: T, m: State<T, U>): T {
-    const [_, newState] = m.run(state);
-
-    return newState;
+    return get<T>().flatMap(s => put(fn(s)));
 }

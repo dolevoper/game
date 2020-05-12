@@ -1,7 +1,6 @@
 import type { State } from './state';
 import type { EntitySystem } from './entity-system';
 import { always } from './fp';
-import * as maybe from './maybe';
 import * as state from './state';
 import * as entitySystem from './entity-system';
 import * as movementSystem from './movement-system';
@@ -24,9 +23,8 @@ document.addEventListener('keyup', function (e) {
 });
 
 export function update(step: number): State<EntitySystem, number> {
-    return state.flatMap(
-        () => state.pure(step),
-        state.modify(es => entitySystem
+    return state
+        .modify<EntitySystem>(es => entitySystem
             .component(0, 'movement', es)
             .match(ms => {
                 const movementSpeed = 64;
@@ -46,5 +44,6 @@ export function update(step: number): State<EntitySystem, number> {
 
                 return entitySystem.updateComponent(ms, movementSystem.from(ms.entityId, xSpeed, ySpeed), es);
             }, always(es))
-        ));
+        )
+        .flatMap(() => state.pure(step))
 }

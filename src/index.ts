@@ -1,5 +1,4 @@
 import type { EntitySystem } from './entity-system';
-import { compose } from './fp';
 import { loadImage } from './core';
 import * as state from './state';
 import * as entitySystem from './entity-system';
@@ -92,15 +91,13 @@ async function startGame() {
     const gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
         const step = timestamp - prevTimeStamp;
 
-        const pipeline = compose(
-            state.flatMap(cameraSystem.render(gameCtx, 3)),
-            state.flatMap(renderingSystem.render),
-            state.flatMap(movementSystem.update),
-            state.flatMap(inputSystem.update)
-        );
-        const s = pipeline(state.pure(step));
-
-        const newState = state.execState(es, s);
+        const newState = state
+            .pure<EntitySystem, number>(step)
+            .flatMap(inputSystem.update)
+            .flatMap(movementSystem.update)
+            .flatMap(renderingSystem.render)
+            .flatMap(cameraSystem.render(gameCtx, 3))
+            .execWith(es);
         
         requestAnimationFrame(gameLoop(timestamp, newState));
     };
