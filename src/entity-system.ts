@@ -67,7 +67,8 @@ export function empty(): EntitySystem {
         cameraFocus: [],
         animator: [],
         stateMachine: [],
-        animatorSelector: []
+        animatorSelector: [],
+        input: []
     });
 }
 
@@ -79,7 +80,8 @@ function emptyEntity(): Entity {
         render: [],
         animator: [],
         stateMachine: [],
-        animatorSelector: []
+        animatorSelector: [],
+        input: []
     };
 }
 
@@ -87,6 +89,6 @@ export function addComponent(component: Component): Func<EntitySystem, EntitySys
     return es => es.addComponent(component);
 }
 
-export function updateComponent(oldComponent: Component, newComponent: Component): Func<EntitySystem, EntitySystem> {
+export function updateComponent<K extends ComponentType>(oldComponent: SumType<Component, 'componentType', K>, newComponent: SumType<Component, 'componentType', K>): Func<EntitySystem, EntitySystem> {
     return es => es.updateComponent(oldComponent, newComponent);
 }

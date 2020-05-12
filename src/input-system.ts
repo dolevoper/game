@@ -12,6 +12,24 @@ const moveDownKey = 40;
 
 type InputState = { [k: number]: boolean };
 
+export interface InputComponent {
+    componentType: 'input';
+    entityId: string;
+    inputState: InputState;
+}
+
+function inputComponent(entityId: string, inputState: InputState): InputComponent {
+    return {
+        componentType: 'input',
+        entityId,
+        inputState
+    };
+}
+
+export function emptyInputComponent(entityId: string): InputComponent {
+    return inputComponent(entityId, {});
+}
+
 let inputState: InputState = {};
 
 document.addEventListener('keydown', function (e) {
@@ -25,27 +43,6 @@ document.addEventListener('keyup', function (e) {
 export function update(step: number): State<EntitySystem, number> {
     return state
         .modify<EntitySystem>(es => {
-            const updatePlayerMovement = es
-                .getEntityComponent('player', 'movement')
-                .match(ms => {
-                    const movementSpeed = 64;
-
-                    let xSpeed = inputState[moveRightKey] && ms.xSpeed >= 0
-                        ? movementSpeed
-                        : inputState[moveLeftKey] ? -movementSpeed : 0;
-
-                    let ySpeed = inputState[moveDownKey] && ms.ySpeed >= 0
-                        ? movementSpeed
-                        : inputState[moveUpKey] ? -movementSpeed : 0;
-
-                    if (xSpeed && ySpeed) {
-                        xSpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-                        ySpeed *= 64 / Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-                    }
-
-                    return entitySystem.updateComponent(ms, movementSystem.movementComponent(ms.entityId, xSpeed, ySpeed));
-                }, always(identity));
-
             const updatePlayerState = es
                 .getEntityComponent('player', 'stateMachine')
                 .match(playerSM => {
@@ -74,7 +71,11 @@ export function update(step: number): State<EntitySystem, number> {
                     return entitySystem.updateComponent(playerSM, updatedPlayerSM);
                 }, always(identity));
 
-            return es.evolve([updatePlayerMovement, updatePlayerState]);
+            const updateInputComponents = es
+                .getComponents('input')
+                .map(oldInputComponent => entitySystem.updateComponent(oldInputComponent, inputComponent(oldInputComponent.entityId, { ...inputState })));
+
+            return es.evolve([...updateInputComponents, updatePlayerState]);
         })
         .flatMap(() => state.pure(step))
 }

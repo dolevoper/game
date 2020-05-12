@@ -49,6 +49,7 @@ async function startGame() {
 
     const es: EntitySystem = entitySystem
         .empty()
+        .addComponent(inputSystem.emptyInputComponent('player'))
         .addComponent(stateMachine.stateMachineComponent<PlayerState, PlayerSignal>('player', 'facing down', {
             'facing down': {
                 'holding nothing': 'facing down',
