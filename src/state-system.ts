@@ -8,10 +8,10 @@ export interface InputStateMachineComponent {
     componentType: 'inputStateMachine';
     entityId: string;
     currentState: string;
-    transitions: { from: string, on: number, to: string }[];
+    transitions: { from: string, on?: number, to: string }[];
 }
 
-export function inputStateMachine(entityId: string, currentState: string, transitions: { from: string, on: number, to: string }[]): InputStateMachineComponent {
+export function inputStateMachine(entityId: string, currentState: string, transitions: { from: string, on?: number, to: string }[]): InputStateMachineComponent {
     return {
         componentType: 'inputStateMachine',
         entityId,
@@ -30,7 +30,7 @@ export function update(step: number): State<EntitySystem, number> {
 
                     return inputComponent
                         .map(input => {
-                            const transition = component.transitions.find(({ from, on }) => component.currentState === from && input.inputState[on]);
+                            const transition = component.transitions.find(({ from, on }) => component.currentState === from && (!on || input.inputState[on]));
 
                             return transition && entitySystem.updateComponent(component, inputStateMachine(component.entityId, transition.to, component.transitions));
                         })

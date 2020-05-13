@@ -44,6 +44,21 @@ async function startGame() {
             { from: 'facing down', on: moveRightKey, to: 'walking right' },
             { from: 'facing down', on: moveUpKey, to: 'walking up' },
 
+            { from: 'facing up', on: moveDownKey, to: 'walking down' },
+            { from: 'facing up', on: moveLeftKey, to: 'walking left' },
+            { from: 'facing up', on: moveRightKey, to: 'walking right' },
+            { from: 'facing up', on: moveUpKey, to: 'walking up' },
+
+            { from: 'facing left', on: moveDownKey, to: 'walking down' },
+            { from: 'facing left', on: moveLeftKey, to: 'walking left' },
+            { from: 'facing left', on: moveRightKey, to: 'walking right' },
+            { from: 'facing left', on: moveUpKey, to: 'walking up' },
+
+            { from: 'facing right', on: moveDownKey, to: 'walking down' },
+            { from: 'facing right', on: moveLeftKey, to: 'walking left' },
+            { from: 'facing right', on: moveRightKey, to: 'walking right' },
+            { from: 'facing right', on: moveUpKey, to: 'walking up' },
+
             { from: 'walking left', on: moveLeftKey, to: 'walking left' },
             { from: 'walking left', on: moveDownKey, to: 'walking down' },
             { from: 'walking left', on: moveRightKey, to: 'walking right' },
@@ -63,6 +78,11 @@ async function startGame() {
             { from: 'walking up', on: moveLeftKey, to: 'walking left' },
             { from: 'walking up', on: moveDownKey, to: 'walking down' },
             { from: 'walking up', on: moveRightKey, to: 'walking right' },
+
+            { from: 'walking left', to: 'facing left' },
+            { from: 'walking right', to: 'facing right' },
+            { from: 'walking down', to: 'facing down' },
+            { from: 'walking up', to: 'facing up' },
         ]))
         .addComponent(animationSystem.animatorSelectorComponent('player', {
             'facing down': animationSystem.animatorComponent('player', 1, [
