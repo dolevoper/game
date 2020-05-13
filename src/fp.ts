@@ -36,3 +36,7 @@ function compose5<A, B, C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, 
 export function identity<T>(value: T): T { return value; }
 
 export function always<T>(value: T): () => T { return () => value; }
+
+export function notEmpty<T>(value: T | null | undefined): value is T {
+    return value !== null && value !== undefined;
+}

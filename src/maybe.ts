@@ -1,4 +1,4 @@
-import { Func, identity, always } from './fp';
+import { Func } from './fp';
 
 interface Just<T> {
     kind: 'just';

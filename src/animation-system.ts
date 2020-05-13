@@ -62,7 +62,7 @@ export function update(step: number): State<EntitySystem, number> {
             const updateAnimationSelectors = es
                 .getComponents('animatorSelector')
                 .map(component => {
-                    const stateMachineComponent = es.getEntityComponent(component.entityId, 'stateMachine');
+                    const stateMachineComponent = es.getEntityComponent(component.entityId, 'inputStateMachine');
                     const currAnimatorComponent = es.getEntityComponent(component.entityId, 'animator');
 
                     return stateMachineComponent.match(

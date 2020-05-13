@@ -66,9 +66,9 @@ export function empty(): EntitySystem {
         movement: [],
         cameraFocus: [],
         animator: [],
-        stateMachine: [],
         animatorSelector: [],
-        input: []
+        input: [],
+        inputStateMachine: []
     });
 }
 
@@ -79,9 +79,9 @@ function emptyEntity(): Entity {
         position: [],
         render: [],
         animator: [],
-        stateMachine: [],
         animatorSelector: [],
-        input: []
+        input: [],
+        inputStateMachine: []
     };
 }
 
