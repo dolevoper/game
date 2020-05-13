@@ -1,4 +1,5 @@
 import type { EntitySystem } from './entity-system';
+import { compose, chainPromise } from './fp';
 import * as state from './state';
 import * as entitySystem from './entity-system';
 import * as renderingSystem from './rendering-system';
@@ -11,6 +12,8 @@ import * as stateSystem from './state-system';
 import * as playerEntity from './entities/player';
 import * as terrainEntity from './entities/terrain';
 
+const loadEntities = compose(chainPromise(terrainEntity.load), playerEntity.load);
+
 async function startGame() {
     const gameCtx = (document.getElementById('app') as HTMLCanvasElement).transferControlToOffscreen().getContext('2d');
 
@@ -18,7 +21,7 @@ async function startGame() {
 
     gameCtx.imageSmoothingEnabled = false;
 
-    const es: EntitySystem = await terrainEntity.load(await playerEntity.load(entitySystem.empty()));
+    const es: EntitySystem = await loadEntities(entitySystem.empty());
 
     const gameLoop = (prevTimeStamp: number, es: EntitySystem) => (timestamp: number) => {
         const step = timestamp - prevTimeStamp;

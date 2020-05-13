@@ -33,6 +33,10 @@ function compose5<A, B, C, D, E, F>(f1: Func<E, F>, f2: Func<D, E>, f3: Func<C, 
     return (p: A) => f1(f2(f3(f4(f5(p)))));
 }
 
+export function chainPromise<T, U>(fn: Func<T, Promise<U>>): Func<Promise<T>, Promise<U>> {
+    return promise => promise.then(fn);
+}
+
 export function identity<T>(value: T): T { return value; }
 
 export function always<T>(value: T): () => T { return () => value; }
