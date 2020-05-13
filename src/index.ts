@@ -178,7 +178,7 @@ async function startGame() {
                     width: 16,
                     height: 16,
                     x: 16,
-                    y: 32
+                    y: 16
                 })
             ]),
             'walking right': animationSystem.animatorComponent('player', 0.5, [

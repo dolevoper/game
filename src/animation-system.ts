@@ -5,7 +5,6 @@ import type { RenderComponent } from './rendering-system';
 import * as zipList from './zip-list';
 import * as state from './state';
 import * as entitySystem from './entity-system';
-import { always, identity } from './fp';
 
 export interface AnimatorComponent extends ZipList<RenderComponent> {
     componentType: 'animator';
@@ -17,7 +16,8 @@ export interface AnimatorComponent extends ZipList<RenderComponent> {
 export interface AnimatorSelectorComponent {
     componentType: 'animatorSelector';
     entityId: string;
-    animations: { [state: string]: AnimatorComponent }
+    animations: { [state: string]: AnimatorComponent };
+    currentState: string;
 }
 
 export function animatorComponent(entityId: string, frequency: number, renderComponents: RenderComponent[]): AnimatorComponent {
@@ -30,11 +30,12 @@ export function animatorComponent(entityId: string, frequency: number, renderCom
     };
 }
 
-export function animatorSelectorComponent<T extends string>(entityId: string, animations: { [state in T]: AnimatorComponent }): AnimatorSelectorComponent {
+export function animatorSelectorComponent<T extends string>(entityId: string, animations: { [state in T]: AnimatorComponent }, currentState: string = ''): AnimatorSelectorComponent {
     return {
         componentType: 'animatorSelector',
         entityId,
-        animations
+        animations,
+        currentState
     };
 }
 
@@ -61,22 +62,27 @@ export function update(step: number): State<EntitySystem, number> {
         .modify<EntitySystem>(es => {
             const updateAnimationSelectors = es
                 .getComponents('animatorSelector')
-                .map(component => {
+                .flatMap(component => {
                     const stateMachineComponent = es.getEntityComponent(component.entityId, 'inputStateMachine');
                     const currAnimatorComponent = es.getEntityComponent(component.entityId, 'animator');
 
-                    return stateMachineComponent.match(
-                        stateMachine => {
-                            const newAnimatorComponent = component.animations[stateMachine.currentState];
+                    return stateMachineComponent
+                        .map(stateMachine => {
+                            if (stateMachine.currentState === component.currentState) return [];
 
-                            return currAnimatorComponent.match(
-                                currAnimator => entitySystem.updateComponent(currAnimator, newAnimatorComponent),
-                                () => entitySystem.addComponent(newAnimatorComponent)
-                            )
-                        },
-                        always(identity)
-                    );
-                })
+                            const newAnimatorComponent = component.animations[stateMachine.currentState];
+                            const newAnimatorSelector = animatorSelectorComponent(component.entityId, component.animations, stateMachine.currentState);
+
+                            return [
+                                entitySystem.updateComponent(component, newAnimatorSelector),
+                                currAnimatorComponent
+                                    .map(currAnimator => entitySystem.updateComponent(currAnimator, newAnimatorComponent))
+                                    .withDefault(entitySystem.addComponent(newAnimatorComponent))
+                            ];
+                        })
+                        .withDefault([]);
+
+                });
 
             const updateAnimations = es
                 .getComponents('animator')
@@ -91,7 +97,7 @@ export function update(step: number): State<EntitySystem, number> {
                         )];
                 });
 
-                return es.evolve([...updateAnimationSelectors, ...updateAnimations]);
+            return es.evolve([...updateAnimationSelectors, ...updateAnimations]);
         })
         .flatMap(() => state.pure(step));
 }
