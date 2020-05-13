@@ -68,7 +68,8 @@ export function empty(): EntitySystem {
         animator: [],
         animatorSelector: [],
         input: [],
-        inputStateMachine: []
+        inputStateMachine: [],
+        collider: []
     });
 }
 
@@ -81,7 +82,8 @@ function emptyEntity(): Entity {
         animator: [],
         animatorSelector: [],
         input: [],
-        inputStateMachine: []
+        inputStateMachine: [],
+        collider: []
     };
 }
 

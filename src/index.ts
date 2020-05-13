@@ -8,6 +8,7 @@ import * as inputSystem from './input-system';
 import * as movementSystem from './movement-system';
 import * as animationSystem from './animation-system';
 import * as stateSystem from './state-system';
+import * as collisionSystem from './collision-system';
 
 import * as playerEntity from './entities/player';
 import * as terrainEntity from './entities/terrain';
@@ -32,6 +33,7 @@ async function startGame() {
             .flatMap(stateSystem.update)
             .flatMap(animationSystem.update)
             .flatMap(movementSystem.update)
+            .flatMap(collisionSystem.update)
             .flatMap(renderingSystem.render)
             .flatMap(cameraSystem.render(gameCtx, 3))
             .execWith(es);

@@ -4,6 +4,7 @@ import { loadImage } from '../core';
 import * as entitySystem from '../entity-system';
 import * as renderingSystem from '../rendering-system';
 import * as positionComponent from '../position-component';
+import * as collisionSystem from '../collision-system';
 
 import GrassTileset from '../assets/AH_Autotile_Grass.png';
 import HouseWallTileset from '../assets/AH_Autotile_House_Wall.png';
@@ -34,6 +35,7 @@ export async function load(es: EntitySystem): Promise<EntitySystem> {;
     ];
 
     return es
+        .addComponent(collisionSystem.boxCollider(terrainEntityId, [-1, -1], tileSize * 20 + 2, 1))
         .addComponent(renderingSystem.fromTileset(terrainEntityId, tileSize, 0, [
             { image: grassImage, x: 8, y: 0, width: tileSize, height: tileSize },
             { image: grassImage, x: 11, y: 0, width: tileSize, height: tileSize },

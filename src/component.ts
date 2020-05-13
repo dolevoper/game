@@ -5,6 +5,7 @@ import type { CameraFocusComponent } from './camera-system';
 import type { AnimatorComponent, AnimatorSelectorComponent } from './animation-system';
 import type { InputStateMachineComponent } from './state-system';
 import type { InputComponent } from './input-system';
+import type { ColliderComponent } from './collision-system';
 
 export type Component = 
     | RenderComponent
@@ -14,6 +15,7 @@ export type Component =
     | AnimatorComponent
     | AnimatorSelectorComponent
     | InputComponent
-    | InputStateMachineComponent;
+    | InputStateMachineComponent
+    | ColliderComponent;
 
 export type ComponentType = Component['componentType'];

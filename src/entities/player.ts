@@ -7,6 +7,7 @@ import * as positionComponent from '../position-component';
 import * as movementSystem from '../movement-system';
 import * as animationSystem from '../animation-system';
 import * as stateSystem from '../state-system';
+import * as collisionSystem from '../collision-system';
 
 import PeoplesImage from '../assets/AH_SpriteSheet_People1.png';
 
@@ -26,6 +27,7 @@ export async function load(es: EntitySystem): Promise<EntitySystem> {
         .addComponent(positionComponent.positionComponent(playerEntityId, [playerSpriteSize, playerSpriteSize]))
         .addComponent(movementSystem.movementComponent(playerEntityId, 0, 0))
         .addComponent(cameraSystem.cameraFocusComponent(playerEntityId, [playerSpriteSize / 2, playerSpriteSize / 2]))
+        .addComponent(collisionSystem.boxCollider(playerEntityId, [0, 0], playerSpriteSize, playerSpriteSize))
         .addComponent(stateSystem.inputStateMachine(playerEntityId, 'facing down', [
             { from: 'facing down', on: moveDownKey, to: 'walking down' },
             { from: 'facing down', on: moveLeftKey, to: 'walking left' },
